@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The ARK — Aziel Rotating Kernel</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="tag">ARK · v0.1.0 · loopback · local vault</div>
+    <h1>The ARK</h1>
+    <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel.</p>
+    <p class="lede">
+      Every phrase is a login. One phrase → one vault. Empty vault indistinguishable
+      from a wrong phrase. AES-256-GCM, Argon2id, HKDF. Mode E intake filter before encrypt.
+    </p>
+  </header>
+
+  <aside class="banner limit" role="note">
+    Not a kernel, not a bootable OS, not a worm, not kernel isolation.
+    “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel.
+    Forgotten phrase = permanent loss. Weak phrase = isolated vault compromise.
+    Does not defeat live OS compromise while unlocked. Civilian software.
+    HSM, kernel isolation, and classified OS are out of scope.
+    Virus sweep is a local intake filter on files YOU put in YOUR vault,
+    not a network AV product and not an exploit.
+    A wrong phrase silently opens a different empty vault (deniability).
+    Loopback UI. No telemetry.
+  </aside>
+
+  <form id="unlock-form" autocomplete="off">
+    <fieldset>
+      <legend>Unlock</legend>
+      <label for="phrase">
+        <span class="kicker">Phrase — this IS the login</span>
+        Never stored in the cloud. Never printed.
+      </label>
+      <input id="phrase" name="phrase" type="password" autocomplete="off" spellcheck="false">
+
+      <label for="level">
+        <span class="kicker">Security level</span>
+        Behavior (auto-lock + decoys), not cryptography.
+      </label>
+      <select id="level" name="level">
+        <option value="normal" selected>normal — 15 min auto-lock</option>
+        <option value="strong">strong — 5 min auto-lock</option>
+        <option value="paranoid">paranoid — 60 s auto-lock</option>
+      </select>
+    </fieldset>
+    <div class="actions">
+      <button type="submit" id="unlock">Unlock</button>
+      <button type="button" id="lock" class="ghost">Lock</button>
+    </div>
+  </form>
+
+  <section class="vault">
+    <h2>Vault</h2>
+    <p id="status" class="band idle">Locked. Phrase opens or creates a vault.</p>
+    <ul id="entries" class="types"></ul>
+    <div class="actions">
+      <label class="file-btn">
+        Upload &amp; encrypt
+        <input id="upload" type="file">
+      </label>
+      <label class="file-btn ghost">
+        Sweep file
+        <input id="sweep" type="file">
+      </label>
+    </div>
+    <p id="sweep-out" class="gate-line"></p>
+  </section>
+
+  <footer>
+    <p>Apache-2.0 · Aziel Eliab · 2026 · Bound to 127.0.0.1:8850 · Forks welcome and always allowed.</p>
+    <p class="foot-note">Standalone from AZ-OS, GodLock, ForgeReceipts. Not a kernel.</p>
+  </footer>
+  <script src="/app.js"></script>
+</body>
+</html>
