@@ -209,6 +209,17 @@ Do not POST passphrases here.
 
 One-URL catalog: https://aziel-runtime.vibelock.workers.dev/openapi.json
 
+## Cite this
+
+Aziel Eliab. The ARK. https://github.com/AzielEliab/ark. https://ark-download-tracker.vibelock.workers.dev. https://doi.org/10.5281/zenodo.21435810.
+
+- Catalog: https://aziel-runtime.vibelock.workers.dev/
+- Worker homepage: https://ark-download-tracker.vibelock.workers.dev/
+- Counted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download
+- GitHub: https://github.com/AzielEliab/ark
+- Citation JSON: https://ark-download-tracker.vibelock.workers.dev/cite.json
+- DOI: https://doi.org/10.5281/zenodo.21435810
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
