@@ -42,6 +42,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
+    p_doc = sub.add_parser("doctor", help="Self-check: loopback, Mode E sweep on clean text. No network.")
+    p_doc.add_argument("--json", action="store_true", dest="as_json", help="Print doctor results as JSON.")
     sub.add_parser("version", help="Print package version.")
 
     p_ui = sub.add_parser("ui", help="Serve the local ARK UI on 127.0.0.1:8850 (loopback only).")
@@ -107,6 +109,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.cmd == "version":
         print(f"ark {__version__}")
         return 0
+
+    if args.cmd == "doctor":
+        from ark.doctor import doctor_cli
+
+        return doctor_cli(as_json=args.as_json)
 
     if args.cmd == "ui":
         from ark.ui import serve
