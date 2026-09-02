@@ -1,4 +1,6 @@
 import * as engine from "./engine.js";
+
+const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The ARK hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# The ARK\n\nLocal deniable vault. \u201cRotating Kernel\u201d means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.\n\n**THIS IS:** a local deniable vault. Every phrase is a login. One phrase \u2192 one vault. Empty vault indistinguishable from a wrong phrase.\n\n**THIS IS NOT:** a kernel, a bootable OS, a worm, kernel isolation, or hosted unlock. Hosted /v1 never stores phrases or vaults.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| GET | `/v1/levels` | Level list. Hosted never unlocks a vault. |\n| POST | `/v1/sweep` | Advisory sweep preview. Hosted never stores phrases or vaults. |\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/levels\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash\nark ui\n```\n\nThen open http://127.0.0.1:8850 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21435810  \nRecord: https://zenodo.org/records/21435810  \n\nCounted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz\nGitHub: https://github.com/AzielEliab/ark\n";
 /**
  * The ARK download tracker (Cloudflare Worker).
  *
@@ -23,6 +25,9 @@ const DEFAULT_ASSET = "ark-0.1.0.tar.gz";
 const DEFAULT_OWNER = "AzielEliab";
 const DEFAULT_REPO = "ark";
 const DEFAULT_BRANCH = "main";
+const HOST = "https://ark-download-tracker.vibelock.workers.dev";
+const GITHUB_REPO = "https://github.com/AzielEliab/ark";
+
 const GITHUB_RELEASES = "https://github.com/AzielEliab/ark/releases";
 const GITHUB_LATEST = "https://github.com/AzielEliab/ark/releases/latest";
 
@@ -175,13 +180,79 @@ async function collectStats(env) {
   };
 }
 
+
+function viewsKey() {
+  return PROJECT + "|__views__";
+}
+
+async function incrementViews(env) {
+  const n = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) + 1;
+  await env.DOWNLOADS.put(viewsKey(), String(n));
+  return n;
+}
+
+function installScript() {
+  return `#!/usr/bin/env bash
+# The ARK one-click install. Counted download via this Worker.
+set -euo pipefail
+HOST="${HOST}"
+ASSET="${DEFAULT_ASSET}"
+WORKDIR="\${ARK_HOME:-\$HOME/ark}"
+mkdir -p "\$WORKDIR"
+cd "\$WORKDIR"
+echo "Downloading counted tarball from \${HOST}/download (User-Agent Mozilla/5.0)…"
+curl -fsSL -A 'Mozilla/5.0' "\${HOST}/download?asset=\${ASSET}" -o "\${ASSET}"
+tar -xzf "\${ASSET}"
+DIR="\$(find . -maxdepth 1 -type d -name 'ark-*' | head -n 1)"
+if [ -n "\${DIR}" ]; then
+  cd "\${DIR}"
+fi
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e .
+echo
+echo "Installed The ARK."
+echo "Run:  ark ui"
+echo "Then open http://127.0.0.1:8850  (loopback only)"
+echo "Author: Aziel Eliab."
+`;
+}
+
+async function serveAsset(request, env, asset, { head = false } = {}) {
+  if (!env.ASSETS) {
+    return json({ error: "assets binding missing" }, 500);
+  }
+  const assetUrl = new URL("/" + asset, request.url);
+  const assetRes = await env.ASSETS.fetch(new Request(assetUrl, { method: "GET" }));
+  if (!assetRes.ok) {
+    return json({ error: "asset not hosted", asset, status: assetRes.status }, 404);
+  }
+  const headers = new Headers();
+  headers.set("Content-Type", "application/gzip");
+  headers.set("Content-Disposition", 'attachment; filename="' + asset.replaceAll('"', "") + '"');
+  headers.set("Cache-Control", "private, no-store");
+  const len = assetRes.headers.get("Content-Length");
+  if (len) headers.set("Content-Length", len);
+  for (const [k, v] of Object.entries(corsHeaders())) headers.set(k, v);
+  if (head) {
+    return new Response(null, { status: 200, headers });
+  }
+  return new Response(assetRes.body, { status: 200, headers });
+}
+
 async function indexHtml(env) {
   const stats = await collectStats(env);
-  const total = Number(stats.total) || 0;
-  const n = total.toLocaleString("en-US");
-  const github = (typeof GITHUB_LATEST !== "undefined" && GITHUB_LATEST)
-    ? GITHUB_LATEST
-    : GITHUB_RELEASES;
+  const downloads = Number(stats.downloads != null ? stats.downloads : stats.total) || 0;
+  const views = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) || 0;
+  const v = views.toLocaleString("en-US");
+  const n = downloads.toLocaleString("en-US");
+  const breakdown = (stats.breakdown || [])
+    .map(
+      (b) =>
+        `<li><code>${b.owner}/${b.repo}</code> branch <code>${b.branch}</code> fork=${b.fork} → ${b.count}</li>`,
+    )
+    .join("") || "<li>none yet</li>";
   return `<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
@@ -189,32 +260,80 @@ async function indexHtml(env) {
 <title>The ARK downloads</title>
 <style>
   :root { color-scheme: dark; }
-  body { font: 16px/1.45 system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1.25rem; background: #0b0b0b; color: #e8e0d0; }
-  h1 { font-size: 1.75rem; margin: 0 0 .35rem; color: #c9a227; }
-  .motto { color: #c9a227; font-style: italic; margin: 0 0 1.5rem; }
-  .card { border: 1px solid #2a261c; border-radius: 12px; padding: 1.25rem 1.35rem; background: #141414; }
-  .count { font-size: 2.4rem; font-variant-numeric: tabular-nums; font-weight: 700; margin: 0; }
-  .count span { font-size: 1rem; font-weight: 500; color: #8a8070; }
-  a.dl { display: inline-block; margin-top: 1rem; background: #c9a227; color: #0b0b0b; text-decoration: none; font-weight: 650; padding: .65rem 1rem; border-radius: 8px; }
-  .meta { margin-top: 1.1rem; color: #8a8070; font-size: .92rem; }
-  .meta a { color: #c9a227; }
+  body { font: 16px/1.45 system-ui, sans-serif; max-width: 42rem; margin: 3rem auto; padding: 0 1.25rem 4rem; background: #0e1014; color: #e8eaef; }
+  h1 { font-size: 1.75rem; margin: 0 0 .35rem; }
+  .motto { color: #9aa3b2; margin: 0 0 1.5rem; }
+  .card { border: 1px solid #2a3140; border-radius: 12px; padding: 1.25rem 1.35rem; background: #151922; }
+  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 0 0 1rem; }
+  .count { font-size: 2.2rem; font-variant-numeric: tabular-nums; font-weight: 700; margin: 0; }
+  .count span { display: block; font-size: .95rem; font-weight: 500; color: #9aa3b2; }
+  .kid { font-size: 1.05rem; margin: 0 0 1rem; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 0 0 .85rem; }
+  @media (max-width: 520px) { .btns { grid-template-columns: 1fr; } }
+  a.btn, button.btn { display: block; width: 100%; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.2rem; font-weight: 750; padding: 1rem 1.1rem; border-radius: 10px; border: 0; cursor: pointer; text-decoration: none; }
+  a.btn.primary { background: #e8eaef; color: #0e1014; }
+  button.btn.install { background: #c9a227; color: #14110a; }
+  button.btn.install.copied { background: #7dcf9a; color: #0e1014; }
+  .meta { margin-top: 1.1rem; color: #9aa3b2; font-size: .92rem; }
+  .meta a { color: #c9d4ff; }
   .iso { margin-top: .85rem; font-size: .85rem; color: #7d8696; }
-  .limit { margin-top: .85rem; font-size: .85rem; color: #8a8070; }
+  .banner { border: 1px solid #5c4a1a; background: #241c0d; color: #f0d78c; padding: .85rem 1rem; border-radius: 8px; margin: 0 0 1.2rem; font-size: .92rem; }
+  pre { background: #0e1014; padding: .75rem .9rem; overflow: auto; border-radius: 8px; font-size: .82rem; }
+  code { font-size: .88rem; }
 </style>
 <body>
   <h1>The ARK</h1>
-  <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel.</p>
+  <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel. Author Aziel Eliab.</p>
+  <p class="banner">Local deniable vault. “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.</p>
   <div class="card">
-    <p class="count">${n}<span> downloads of this project</span></p>
-    <a class="dl" href="/download?asset=ark-0.1.0.tar.gz">Download ark-0.1.0.tar.gz — ${n} counted</a>
-    <p class="meta">The count ticks on this click. Nobody reports anything. Forks using this same link are counted automatically.</p>
-    <p class="iso">Isolated counter: Worker <code>ark-download-tracker</code>, project <code>ark</code>. Not mixed with any other product.</p>
-    <p class="limit">Not a kernel, not a bootable OS, not a worm. Civilian software. Hosted API never logs phrases and never stores vaults. Forks welcome and always allowed.</p>
-    <p class="meta"><a href="/ai">AI runtime</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/stats">JSON stats</a> · <a href="${github}">GitHub releases</a></p>
+    <div class="nums">
+      <p class="count">${v}<span>Views</span></p>
+      <p class="count">${n}<span>Downloads</span></p>
+    </div>
+    <p class="kid"><strong>Two big buttons.</strong> Download saves the gzip (the Downloads number goes up). One-click install copies a Terminal command. After it finishes, type <code>ark ui</code>.</p>
+    <div class="btns">
+      <a class="btn primary dl" href="/download?asset=${DEFAULT_ASSET}">Download</a>
+      <button type="button" class="btn install" id="install-btn">One-click install</button>
+    </div>
+    <pre id="install-cmd">curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash</pre>
+    <p class="kid">Then run: <code>ark ui</code> and open http://127.0.0.1:8850 (this computer only).</p>
+    <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). No 302 to GitHub. Forks using this same link are counted automatically. ${DEFAULT_ASSET} — ${n} counted.</p>
+    <p class="iso">Isolated counter: Worker <code>ark-download-tracker</code>, project <code>ark</code>, KV <code>ARK_DOWNLOADS</code>. Not mixed with any other product. /v1 does not increment downloads.</p>
+    <p class="meta">Paper: <a href="https://doi.org/10.5281/zenodo.21435810">doi:10.5281/zenodo.21435810</a> · <a href="https://zenodo.org/records/21435810">Zenodo</a> · Apache-2.0 · Eliab, Aziel</p>
+    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
+    <script>
+      (function () {
+        var cmd = "curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash";
+        var btn = document.getElementById("install-btn");
+        var pre = document.getElementById("install-cmd");
+        if (!btn) return;
+        btn.addEventListener("click", function () {
+          function done(ok) {
+            btn.textContent = ok ? "Copied! Paste in Terminal, then run ark ui" : "Select the command, copy it, then run ark ui";
+            btn.classList.add("copied");
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cmd).then(function () { done(true); }).catch(function () { done(false); });
+          } else {
+            done(false);
+            if (pre && window.getSelection) {
+              var r = document.createRange();
+              r.selectNodeContents(pre);
+              var sel = window.getSelection();
+              sel.removeAllRanges();
+              sel.addRange(r);
+            }
+          }
+        });
+      })();
+    </script>
+    <h2>Per repo / branch / fork</h2>
+    <ul>${breakdown}</ul>
   </div>
 </body>
 </html>`;
 }
+
 
 function html(body) {
   return new Response(body, {
@@ -298,6 +417,19 @@ async function handleRuntime(request, url) {
       limitation: engine.LIMITATION,
     });
   }
+
+  if (path === "/v1/skill" && request.method === "GET") {
+    return new Response(SKILL_MARKDOWN, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Cache-Control": "private, no-store",
+        "X-KV-Increment": "false",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+
   if (path === "/v1/levels" && request.method === "GET") {
     return json(engine.levels());
   }
@@ -331,7 +463,19 @@ export default {
     const runtime = await handleRuntime(request, url);
     if (runtime) return runtime;
 
+    if ((url.pathname === "/install.sh" || url.pathname === "/install.sh/") && request.method === "GET") {
+      return new Response(installScript(), {
+        status: 200,
+        headers: {
+          "Content-Type": "text/x-shellscript; charset=utf-8",
+          "Cache-Control": "private, no-store",
+          ...corsHeaders(),
+        },
+      });
+    }
+
     if (url.pathname === "/" && request.method === "GET") {
+      await incrementViews(env);
       return new Response(await indexHtml(env), {
         headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders() },
       });
@@ -367,35 +511,23 @@ export default {
       });
     }
 
-    if (url.pathname === "/go" && request.method === "GET") {
+    if (url.pathname === "/go" && (request.method === "GET" || request.method === "HEAD")) {
       const dims = parseDims(url.searchParams);
-      await increment(env, dims);
       const asset = dims.asset || DEFAULT_ASSET;
-      return redirect(githubAssetUrl(dims.owner, dims.repo, dims.tag, asset));
+      dims.asset = asset;
+      if (request.method === "GET") await increment(env, dims);
+      return serveAsset(request, env, asset, { head: request.method === "HEAD" });
     }
 
-    if ((url.pathname === "/download" || url.pathname.startsWith("/download/")) && request.method === "GET") {
+    if ((url.pathname === "/download" || url.pathname.startsWith("/download/")) && (request.method === "GET" || request.method === "HEAD")) {
       const dims = parseDims(url.searchParams);
       if (!dims.asset && url.pathname.startsWith("/download/")) {
         dims.asset = decodeURIComponent(url.pathname.slice("/download/".length));
       }
       const asset = dims.asset || DEFAULT_ASSET;
       dims.asset = asset;
-      await increment(env, dims);
-      if (!env.ASSETS) {
-        return json({ error: "assets binding missing" }, 500);
-      }
-      const assetUrl = new URL("/" + asset, request.url);
-      const assetRes = await env.ASSETS.fetch(new Request(assetUrl, { method: "GET" }));
-      if (!assetRes.ok) {
-        return json({ error: "asset not hosted", asset, status: assetRes.status }, 404);
-      }
-      const headers = new Headers();
-      headers.set("Content-Type", "application/gzip");
-      headers.set("Content-Disposition", 'attachment; filename="' + asset.replaceAll('"', "") + '"');
-      headers.set("Cache-Control", "private, no-store");
-      for (const [k, v] of Object.entries(corsHeaders())) headers.set(k, v);
-      return new Response(assetRes.body, { status: 200, headers });
+      if (request.method === "GET") await increment(env, dims);
+      return serveAsset(request, env, asset, { head: request.method === "HEAD" });
     }
 
     return json({ error: "not found" }, 404);
