@@ -1,6 +1,9 @@
 import * as engine from "./engine.js";
+const EXAMPLE_PAYLOAD = {
+  "text": "hello world"
+};
 
-const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The ARK hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# The ARK\n\nLocal deniable vault. \u201cRotating Kernel\u201d means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.\n\n**THIS IS:** a local deniable vault. Every phrase is a login. One phrase \u2192 one vault. Empty vault indistinguishable from a wrong phrase.\n\n**THIS IS NOT:** a kernel, a bootable OS, a worm, kernel isolation, or hosted unlock. Hosted /v1 never stores phrases or vaults.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| GET | `/v1/levels` | Level list. Hosted never unlocks a vault. |\n| POST | `/v1/sweep` | Advisory sweep preview. Hosted never stores phrases or vaults. |\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/levels\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash\nark ui\n```\n\nThen open http://127.0.0.1:8850 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21435810  \nRecord: https://zenodo.org/records/21435810  \n\nCounted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz\nGitHub: https://github.com/AzielEliab/ark\n";
+const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The ARK hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# The ARK\n\nLocal deniable vault. \u201cRotating Kernel\u201d means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.\n\n**THIS IS:** a local deniable vault. Every phrase is a login. One phrase \u2192 one vault. Empty vault indistinguishable from a wrong phrase.\n\n**THIS IS NOT:** a kernel, a bootable OS, a worm, kernel isolation, or hosted unlock. Hosted /v1 never stores phrases or vaults.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| GET | `/v1/levels` | Level list. Hosted never unlocks a vault. |\n| POST | `/v1/sweep` | Advisory sweep preview. Hosted never stores phrases or vaults. |\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/levels\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash\nark ui\n```\n\nThen open http://127.0.0.1:8850 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21435810  \nRecord: https://zenodo.org/records/21435810  \n\nCounted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz\nGitHub: https://github.com/AzielEliab/ark\n\n## Catalog + local UI\n\nAuthor: **Aziel Eliab**. Honest scope: Mode E heuristics sweep. Not a kernel. Hosted never unlocks or stores vaults.\n\n- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/ark/\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker skill: `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n- This Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Sample payload: `GET https://ark-download-tracker.vibelock.workers.dev/v1/example`\n\nLocal UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `ark doctor`.\n\nGrok: import catalog or Worker OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n";
 /**
  * The ARK download tracker (Cloudflare Worker).
  *
@@ -429,6 +432,7 @@ function openapiSpec(request) {
     },
     servers: [{ url: origin }],
     paths: {
+            "/v1/example": { get: { operationId: "arkExample", summary: "Sample JSON payload. Does not increment downloads.", responses: { "200": { description: "OK" } } } },
       "/v1/health": { get: { operationId: "ark_health", summary: "Liveness. Does not increment download KV. Never stores phrases.", responses: { "200": { description: "ok" } } } },
       "/v1/levels": { get: { operationId: "ark_levels", summary: "Auto-lock seconds and decoy counts. Behavior, not cryptography.", responses: { "200": { description: "levels" } } } },
       "/v1/sweep": {
@@ -475,7 +479,7 @@ async function handleRuntime(request, url) {
   const path = url.pathname.replace(/\/+$/, "") || "/";
   if (path === "/v1/health" && request.method === "GET") {
     return json({
-      ok: true,
+      ok: true, author: "Aziel Eliab",
       product: "ark",
       runtime: true,
       kv_increment: false,
@@ -485,6 +489,16 @@ async function handleRuntime(request, url) {
       limitation: engine.LIMITATION,
     });
   }
+  if ((path === "/v1/example" || path === "/v1/example/") && (request.method === "GET" || request.method === "HEAD")) {
+    return json({
+      ok: true,
+      product: "ark",
+      author: "Aziel Eliab",
+      example: EXAMPLE_PAYLOAD,
+      note: "Sample payload only. Does not increment downloads.",
+    });
+  }
+
 
   if (path === "/v1/skill" && request.method === "GET") {
     return new Response(SKILL_MARKDOWN, {

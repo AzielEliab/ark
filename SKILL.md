@@ -49,3 +49,18 @@ Counted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.
 GitHub: https://github.com/AzielEliab/ark
 
 Paper: DOI https://doi.org/10.5281/zenodo.21435810 · https://zenodo.org/records/21435810 · Apache-2.0. Forks welcome.
+
+## Catalog + local UI
+
+Author: **Aziel Eliab**. Honest scope: Mode E heuristics sweep. Not a kernel. Hosted never unlocks or stores vaults.
+
+- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/ark/
+- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
+- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`
+- This Worker skill: `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`
+- This Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json
+- Sample payload: `GET https://ark-download-tracker.vibelock.workers.dev/v1/example`
+
+Local UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `ark doctor`.
+
+Grok: import catalog or Worker OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
