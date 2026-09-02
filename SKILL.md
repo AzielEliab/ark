@@ -5,13 +5,11 @@ description: Use when calling The ARK hosted /v1 or installing the local package
 
 # The ARK
 
-Local deniable vault. “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.
+Local deniable vault. Not a kernel. Every phrase is a door. Author: **Aziel Eliab**.
 
-**THIS IS:** a local deniable vault. Every phrase is a login. One phrase → one vault. Empty vault indistinguishable from a wrong phrase.
+**THIS IS:** a local deniable vault.
 
-**THIS IS NOT:** a kernel, a bootable OS, a worm, kernel isolation, or hosted unlock. Hosted /v1 never stores phrases or vaults.
-
-Author: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.
+**THIS IS NOT:** a kernel, bootloader, hypervisor, or malware. Hosted `/v1` does not increment downloads or views.
 
 Always send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.
 
@@ -24,12 +22,9 @@ Always send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent
 
 Ops (do **not** increment downloads or views):
 
-| Method | Path | What |
-|--------|------|------|
-| GET | `/v1/health` | Liveness. Does not increment downloads. |
-| GET | `/v1/skill` | This markdown. Does not increment downloads. |
-| GET | `/v1/levels` | Level list. Hosted never unlocks a vault. |
-| POST | `/v1/sweep` | Advisory sweep preview. Hosted never stores phrases or vaults. |
+- `GET /v1/health` — liveness
+- `GET /v1/skill` — this file
+- Product POSTs listed in OpenAPI
 
 Grok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
 
@@ -38,7 +33,6 @@ Grok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
 ```bash
 curl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/health
 curl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/skill
-curl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/levels
 ```
 
 ## Local (after one-click install)
@@ -46,12 +40,12 @@ curl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/le
 ```bash
 curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash
 ark ui
+ark doctor
 ```
 
 Then open http://127.0.0.1:8850 (loopback only).
 
-DOI: https://doi.org/10.5281/zenodo.21435810  
-Record: https://zenodo.org/records/21435810  
-
 Counted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz
 GitHub: https://github.com/AzielEliab/ark
+
+Paper: DOI https://doi.org/10.5281/zenodo.21435810 · https://zenodo.org/records/21435810 · Apache-2.0. Forks welcome.
