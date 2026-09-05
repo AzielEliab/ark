@@ -63,3 +63,5 @@ Sweep is Mode E heuristics only. No clamscan. Payload is not stored.
 Do NOT add unlock/encrypt/decrypt that takes a passphrase.
 
 Help page: `/ai`. Combined catalog: https://aziel-runtime.vibelock.workers.dev/
+
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import OpenAPI as a custom tool or GPT Action, or connect MCP. Always send `User-Agent: Mozilla/5.0`.
