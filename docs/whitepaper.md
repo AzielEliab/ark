@@ -56,6 +56,12 @@ The payload is not stored. This is not an exploit and not a network AV.
 The hosted Worker exposes the **same heuristics only**. No clamscan on
 Cloudflare. No passphrase endpoints. No vault blobs in KV.
 
+The Worker homepage shows a suite Live Nodes strip. `/v1/mesh/*` PROXY
+to aziel-runtime via `AZIEL_RUNTIME`. Suite mesh default OFF. QNM
+rollup is live|locked|isolated counts only. No Node Gate. No auto-heal.
+Not an anonymity network. Anon-broadcast is not a publish path. The ARK
+remains a local deniable vault.
+
 ## Honest failure modes
 
 - Forgotten phrase = permanent loss

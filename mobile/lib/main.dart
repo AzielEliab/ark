@@ -120,7 +120,8 @@ class _ArkHomeState extends State<ArkHome> {
             ),
           const SizedBox(height: 24),
           Text(
-            'Counted desktop download: https://ark-download-tracker.vibelock.workers.dev/',
+            'Counted desktop download: https://ark-download-tracker.vibelock.workers.dev/\n'
+            'Live Nodes: GET /v1/mesh PROXY (default OFF). QNM live|locked|isolated. No Node Gate.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: kGoldDim),
           ),
         ],

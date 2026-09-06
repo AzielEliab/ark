@@ -46,6 +46,7 @@ Direct tarball (also counted):
 - Stats JSON: [https://ark-download-tracker.vibelock.workers.dev/stats](https://ark-download-tracker.vibelock.workers.dev/stats)
 - OpenAPI: [https://ark-download-tracker.vibelock.workers.dev/openapi.json](https://ark-download-tracker.vibelock.workers.dev/openapi.json)
 - Skill: [https://ark-download-tracker.vibelock.workers.dev/v1/skill](https://ark-download-tracker.vibelock.workers.dev/v1/skill)
+- Suite mesh proxy: [https://ark-download-tracker.vibelock.workers.dev/v1/mesh](https://ark-download-tracker.vibelock.workers.dev/v1/mesh) — default OFF; QNM live / locked / isolated
 - One-click install: [https://ark-download-tracker.vibelock.workers.dev/install.sh](https://ark-download-tracker.vibelock.workers.dev/install.sh)
 - GitHub: [https://github.com/AzielEliab/ark](https://github.com/AzielEliab/ark)
 
@@ -201,6 +202,7 @@ Not a kernel. Local deniable vault. Hosted API never logs phrases.
 
 - `GET https://ark-download-tracker.vibelock.workers.dev/v1/health`
 - `GET https://ark-download-tracker.vibelock.workers.dev/v1/levels`
+- `GET https://ark-download-tracker.vibelock.workers.dev/v1/mesh` (PROXY; default OFF)
 - `POST https://ark-download-tracker.vibelock.workers.dev/v1/sweep` `{b64}` or `{text}`
 - OpenAPI 3.1: https://ark-download-tracker.vibelock.workers.dev/openapi.json
 - Help: https://ark-download-tracker.vibelock.workers.dev/ai
@@ -219,7 +221,7 @@ Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`
 This Worker skill: https://ark-download-tracker.vibelock.workers.dev/v1/skill
 This Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json
 
-Import the catalog or Worker OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT (no auth), or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. Always send `User-Agent: Mozilla/5.0`.
+Import the catalog or Worker OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT (no auth), or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. This Worker `/v1/mesh/*` PROXY via `AZIEL_RUNTIME`. Humans use the complete Worker UI (Live Nodes strip). Dual surface: do not gut the human UI. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Catalog MCP `mesh_*` + FragGate `slug=mesh`. Anon-broadcast is not a publish path. Always send `User-Agent: Mozilla/5.0`.
 
 ## Cite this
 

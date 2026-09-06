@@ -29,6 +29,7 @@ Isolated counter: Worker `ark-download-tracker`, project `ark`.
 | Binding     | Type | Purpose |
 |-------------|------|---------|
 | `DOWNLOADS` | KV   | Counters keyed `project|owner|repo|branch|fork` |
+| `AZIEL_RUNTIME` | service | Suite mesh `/v1/mesh/*` PROXY to aziel-runtime (HTTP fallback when unbound) |
 
 KV id in `wrangler.toml`: `c7305a73417348f6ad41a3529f0d0235`.
 Binding name MUST stay `DOWNLOADS` (not `ARK_DOWNLOADS` — that is
@@ -38,11 +39,14 @@ the Cloudflare namespace title).
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| GET | `/` | Isolated homepage: increment views, live counts on the page |
+| GET | `/` | Isolated homepage: increment views, live counts on the page, Live Nodes strip |
 | GET | `/download?repo=&tag=&asset=` | Increment downloads, serve the asset from `ASSETS` |
 | GET | `/count` | JSON `{project, views, downloads, total}` (reads both KV counters; does not increment) |
 | GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
 | POST | `/event` | A fork reports a download |
+| GET | `/v1/mesh` · `/v1/mesh/status` | PROXY suite mesh status via `AZIEL_RUNTIME`. Default OFF. Never enables. |
+| GET | `/v1/mesh/nodes` | PROXY Live Nodes roster (5-minute presence) |
+| POST | `/v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` | PROXY. Bearer required to enable. No auto-heal. |
 
 Tracked asset URL:
 
@@ -58,6 +62,10 @@ All responses include `Access-Control-Allow-Origin: *`.
 
 CORS `*`. `GET /v1/health`, `GET /v1/levels`, `POST /v1/sweep` `{b64|text}`,
 `GET /openapi.json` (OpenAPI 3.1), `GET /ai`.
+`/v1/mesh/*` PROXY to aziel-runtime suite mesh (`AZIEL_RUNTIME`). Default OFF.
+QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.
+Human UI Live Nodes strip polls `GET /v1/mesh`. Catalog MCP `mesh_*` + FragGate
+`slug=mesh`. Full node process is local `qnm-node/`.
 Routes under `/v1` **do not** increment download KV.
 Sweep is Mode E heuristics only. No clamscan. Payload is not stored.
 Do NOT add unlock/encrypt/decrypt that takes a passphrase.

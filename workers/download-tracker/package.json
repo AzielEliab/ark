@@ -1,4 +1,8 @@
 {
+  "type": "module",
+  "scripts": {
+    "verify-mesh": "node scripts/verify-mesh-proxy.mjs"
+  },
   "dependencies": {
     "wrangler": "^4.127.1"
   }

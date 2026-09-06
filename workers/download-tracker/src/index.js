@@ -1,9 +1,15 @@
 import * as engine from "./engine.js";
+import {
+  isMeshPath,
+  meshOpenApiPaths,
+  meshPointer,
+  runMeshProxy,
+} from "./mesh.js";
 const EXAMPLE_PAYLOAD = {
   "text": "hello world"
 };
 
-const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The ARK hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# The ARK\n\nLocal deniable vault. \u201cRotating Kernel\u201d means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.\n\n**THIS IS:** a local deniable vault. Every phrase is a login. One phrase \u2192 one vault. Empty vault indistinguishable from a wrong phrase.\n\n**THIS IS NOT:** a kernel, a bootable OS, a worm, kernel isolation, or hosted unlock. Hosted /v1 never stores phrases or vaults.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| GET | `/v1/levels` | Level list. Hosted never unlocks a vault. |\n| POST | `/v1/sweep` | Advisory sweep preview. Hosted never stores phrases or vaults. |\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/levels\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash\nark ui\n```\n\nThen open http://127.0.0.1:8850 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21435810  \nRecord: https://zenodo.org/records/21435810  \n\nCounted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz\nGitHub: https://github.com/AzielEliab/ark\n\n## Catalog + local UI\n\nAuthor: **Aziel Eliab**. Honest scope: Mode E heuristics sweep. Not a kernel. Hosted never unlocks or stores vaults.\n\n- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/ark/\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker skill: `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n- This Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Sample payload: `GET https://ark-download-tracker.vibelock.workers.dev/v1/example`\n\nLocal UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `ark doctor`.\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import the catalog or Worker OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP.\n";
+const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The ARK hosted /v1 or installing the local package. Dual surface: Worker /v1 + GET /mcp, or aziel-runtime FragGate slug ark. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.\n---\n\n# The ARK\n\nLocal deniable vault. \u201cRotating Kernel\u201d means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.\n\n**THIS IS:** a local deniable vault. Every phrase is a login. One phrase \u2192 one vault. Empty vault indistinguishable from a wrong phrase.\n\n**THIS IS NOT:** a kernel, a bootable OS, a worm, kernel isolation, or hosted unlock. Hosted /v1 never stores phrases or vaults.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker MCP pointer: `GET https://ark-download-tracker.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n- Suite mesh PROXY: `GET https://ark-download-tracker.vibelock.workers.dev/v1/mesh` (default OFF)\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| GET | `/v1/levels` | Level list. Hosted never unlocks a vault. |\n| GET | `/v1/mesh` | PROXY suite mesh status. Default OFF. QNM live\\|locked\\|isolated. Never enables. |\n| GET | `/v1/mesh/nodes` | PROXY Live Nodes roster (5-minute presence). |\n| POST | `/v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` | PROXY. Bearer required to enable. No auto-heal. Anon-broadcast is not a publish path. |\n| POST | `/v1/sweep` | Advisory sweep preview. Hosted never stores phrases or vaults. |\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. This Worker `/v1/mesh/*` PROXY to aziel-runtime via AZIEL_RUNTIME. Catalog MCP `mesh_*` + FragGate `slug=mesh`. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/levels\ncurl -s -A 'Mozilla/5.0' https://ark-download-tracker.vibelock.workers.dev/v1/mesh\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash\nark ui\n```\n\nThen open http://127.0.0.1:8850 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21435810  \nRecord: https://zenodo.org/records/21435810  \n\nCounted download (gzip HTTP 200, no 302): https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz\nGitHub: https://github.com/AzielEliab/ark\n\n## Catalog + local UI\n\nAuthor: **Aziel Eliab**. Honest scope: Mode E heuristics sweep. Not a kernel. Hosted never unlocks or stores vaults.\n\n- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/ark/\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker skill: `GET https://ark-download-tracker.vibelock.workers.dev/v1/skill`\n- This Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json\n- Sample payload: `GET https://ark-download-tracker.vibelock.workers.dev/v1/example`\n\nLocal UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `ark doctor`. Worker homepage Live Nodes strip polls `GET /v1/mesh` (default OFF).\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import the catalog or Worker OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. Suite mesh: `GET /v1/mesh` PROXY (default OFF). Catalog MCP `mesh_*` + FragGate `slug=mesh`.\n";
 /**
  * The ARK download tracker (Cloudflare Worker).
  *
@@ -12,7 +18,7 @@ const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The AR
  * GET  /count   JSON {project, views, downloads, total} — reads both KV counters
  * GET  /stats   JSON totals + per-repo + per-branch breakdown
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
- * /v1 does not increment views or downloads.
+ * /v1, /mcp, and /v1/mesh/* do not increment views or downloads.
  *
  * KV binding DOWNLOADS. Keys: project|owner|repo|branch|fork
  * totalKey() = ark|__total__
@@ -41,8 +47,8 @@ const ZENODO = "https://zenodo.org/records/21435810";
 function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, X-Aziel-Runtime-Token, User-Agent",
   };
 }
 
@@ -345,11 +351,33 @@ async function indexHtml(env) {
   .cite h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
   .cite p { color: #c5ccd8; font-size: .95rem; }
   .cite a { color: #c9d4ff; }
+  #meshStrip { border: 1px solid #c9a227; border-radius: 12px; padding: .85rem 1rem; background: #151922; margin: 0 0 1.1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .7rem 1rem; font-size: .88rem; color: #9aa3b2; }
+  #meshStrip .live { color: #e8eaef; }
+  #meshStrip .live b { color: #c9a227; font-size: 1.35rem; margin-right: .35rem; }
+  #meshStrip .rollup b { color: #c9a227; }
+  #meshStrip button { font: 700 .78rem/1 ui-monospace, Menlo, Consolas, monospace; height: 2rem; padding: 0 .75rem; border-radius: 8px; background: #101010; color: #e8eaef; border: 1px solid #c9a227; cursor: pointer; }
+  #meshStrip button:hover { background: #241c0d; color: #c9a227; }
+  #meshStrip input { width: 10rem; padding: .4rem .55rem; border: 1px solid #c9a227; border-radius: 8px; background: #0e1014; color: #e8eaef; font: inherit; }
+  #meshProducts { flex-basis: 100%; margin: 0; }
 </style>
 <body>
   <h1>The ARK</h1>
   <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel. Author Aziel Eliab.</p>
   <p class="banner">Local deniable vault. “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.</p>
+  <aside id="meshStrip" aria-label="Live Nodes">
+    <span class="live"><b id="meshLiveCount">0</b> Live Nodes</span>
+    <span id="meshLine">Suite mesh: off (default). QNM-BUILD-1.0. Not an anonymity network.</span>
+    <span class="rollup">live <b id="qnmLive">0</b> · locked <b id="qnmLocked">0</b> · isolated <b id="qnmIsolated">0</b></span>
+    <span>No Node Gate · No auto-heal · Aziel Eliab only</span>
+    <span>
+      <input id="meshBearer" type="text" placeholder="bearer (required to enable)" autocomplete="off" spellcheck="false">
+      <button type="button" id="meshEnable">Enable</button>
+      <button type="button" id="meshDisable">Disable</button>
+      <button type="button" id="meshJoin">Join</button>
+      <button type="button" id="meshLeave">Leave</button>
+    </span>
+    <p id="meshProducts">Catalog MCP mesh_* · FragGate slug=mesh · /v1/mesh/* PROXY · not AnonBroadcast · not AZMail ring · not a Node Gate</p>
+  </aside>
   <div class="card">
     <div class="nums">
       <p class="count">${v}<span>Views</span></p>
@@ -363,9 +391,9 @@ async function indexHtml(env) {
     <pre id="install-cmd">curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash</pre>
     <p class="kid">Then run: <code>ark ui</code> and open http://127.0.0.1:8850 (this computer only).</p>
     <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). No 302 to GitHub. Forks using this same link are counted automatically. ${DEFAULT_ASSET} — ${n} counted.</p>
-    <p class="iso">Isolated counter: Worker <code>ark-download-tracker</code>, project <code>ark</code>, KV <code>ARK_DOWNLOADS</code>. Not mixed with any other product. /v1 does not increment downloads.</p>
+    <p class="iso">Isolated counter: Worker <code>ark-download-tracker</code>, project <code>ark</code>, KV <code>ARK_DOWNLOADS</code>. Not mixed with any other product. /v1, /mcp, and /v1/mesh/* do not increment downloads.</p>
     <p class="meta">Paper: <a href="https://doi.org/10.5281/zenodo.21435810">doi:10.5281/zenodo.21435810</a> · <a href="https://zenodo.org/records/21435810">Zenodo</a> · Apache-2.0 · Eliab, Aziel</p>
-    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
+    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/count">/count</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/mcp">MCP</a> · <a href="/v1/mesh">/v1/mesh</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
     <script>
       (function () {
         var cmd = "curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash";
@@ -390,6 +418,108 @@ async function indexHtml(env) {
             }
           }
         });
+      })();
+      (function () {
+        function $(id) { return document.getElementById(id); }
+        function meshNum() {
+          for (var i = 0; i < arguments.length; i++) {
+            var raw = arguments[i];
+            if (raw == null || raw === "") continue;
+            var n = typeof raw === "number" ? raw : Number(String(raw).replace(/,/g, ""));
+            if (Number.isFinite(n) && n >= 0) return Math.floor(n);
+          }
+          return 0;
+        }
+        function unwrapMesh(j) {
+          if (!j || typeof j !== "object") return {};
+          if (j.result && typeof j.result === "object") return Object.assign({}, j, j.result);
+          if (j.mesh && typeof j.mesh === "object") return Object.assign({}, j, j.mesh);
+          return j;
+        }
+        function paintMesh(raw) {
+          var j = unwrapMesh(raw);
+          var on = j.enabled === true || j.enabled === 1 || String(j.status || "").toLowerCase() === "on";
+          var r = (j.rollup && typeof j.rollup === "object") ? j.rollup : {};
+          var live = on ? meshNum(r.live, j.live_nodes, j.live) : 0;
+          var locked = on ? meshNum(r.locked, j.locked_nodes, j.locked) : 0;
+          var isolated = on ? meshNum(r.isolated, j.isolated_nodes, j.isolated) : 0;
+          if ($("meshLiveCount")) $("meshLiveCount").textContent = String(live);
+          if ($("qnmLive")) $("qnmLive").textContent = String(live);
+          if ($("qnmLocked")) $("qnmLocked").textContent = String(locked);
+          if ($("qnmIsolated")) $("qnmIsolated").textContent = String(isolated);
+          var line = $("meshLine");
+          if (line) {
+            if (on) line.textContent = "Suite mesh: on · live " + live + " · locked " + locked + " · isolated " + isolated + ". Not an anonymity network.";
+            else if (j.status === "unavailable" || (j.ok === false && j.error)) line.textContent = "Suite mesh: off (unavailable). QNM-BUILD-1.0. Not an anonymity network.";
+            else line.textContent = "Suite mesh: off (default). QNM-BUILD-1.0. Not an anonymity network.";
+          }
+          var products = j.products_present || j.products || [];
+          var names = Array.isArray(products) ? products.map(function (p) { return typeof p === "string" ? p : (p && (p.product || p.slug)) || ""; }).filter(Boolean) : [];
+          var nodes = Array.isArray(j.nodes) ? j.nodes : [];
+          var extra = names.length ? " · products " + names.join(", ") : (nodes.length ? " · " + nodes.length + " node labels" : "");
+          if ($("meshProducts")) $("meshProducts").textContent = "Catalog MCP mesh_* · FragGate slug=mesh · /v1/mesh/* PROXY · not AnonBroadcast · not AZMail ring · not a Node Gate" + extra;
+        }
+        async function meshGet(path) {
+          var r = await fetch(path, { headers: { "user-agent": "Mozilla/5.0", accept: "application/json" } });
+          return r.json();
+        }
+        async function meshPost(path, payload) {
+          var r = await fetch(path, { method: "POST", headers: { "content-type": "application/json", "user-agent": "Mozilla/5.0" }, body: JSON.stringify(payload || {}) });
+          return r.json();
+        }
+        async function refreshMesh() {
+          try {
+            var status = await meshGet("/v1/mesh");
+            var merged = status;
+            var inner = unwrapMesh(status);
+            var on = inner.enabled === true;
+            if (on) {
+              try {
+                var nodes = await meshGet("/v1/mesh/nodes");
+                merged = Object.assign({}, inner, unwrapMesh(nodes));
+              } catch (e) { /* status is enough */ }
+            }
+            paintMesh(merged);
+            var nodeId = sessionStorage.getItem("ark_mesh_node");
+            if (on && nodeId) {
+              try { await meshPost("/v1/mesh/heartbeat", { node_id: nodeId }); } catch (e) { /* no auto-heal */ }
+            }
+          } catch (e) {
+            paintMesh({ ok: false, enabled: false, status: "unavailable", error: "mesh_unavailable" });
+          }
+        }
+        if ($("meshEnable")) $("meshEnable").onclick = async function () {
+          var bearer = ($("meshBearer") && $("meshBearer").value || "").trim();
+          paintMesh(await meshPost("/v1/mesh/enable", bearer ? { bearer: bearer } : {}));
+          refreshMesh();
+        };
+        if ($("meshDisable")) $("meshDisable").onclick = async function () {
+          sessionStorage.removeItem("ark_mesh_node");
+          paintMesh(await meshPost("/v1/mesh/disable", {}));
+          refreshMesh();
+        };
+        if ($("meshJoin")) $("meshJoin").onclick = async function () {
+          var j = await meshPost("/v1/mesh/join", { product: "ark", label: "The ARK Worker" });
+          var inner = unwrapMesh(j);
+          var id = inner.node_id || inner.id || (inner.session && inner.session.node_id);
+          if (id) sessionStorage.setItem("ark_mesh_node", String(id));
+          paintMesh(j);
+          refreshMesh();
+        };
+        if ($("meshLeave")) $("meshLeave").onclick = async function () {
+          var id = sessionStorage.getItem("ark_mesh_node");
+          if (id) await meshPost("/v1/mesh/leave", { node_id: id });
+          sessionStorage.removeItem("ark_mesh_node");
+          refreshMesh();
+        };
+        window.addEventListener("pagehide", function () {
+          var id = sessionStorage.getItem("ark_mesh_node");
+          if (!id || typeof navigator.sendBeacon !== "function") return;
+          try { navigator.sendBeacon("/v1/mesh/leave", new Blob([JSON.stringify({ node_id: id })], { type: "application/json" })); } catch (e) { /* leave expires in 5 minutes */ }
+        });
+        refreshMesh();
+        setInterval(refreshMesh, 30000);
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) refreshMesh(); });
       })();
     </script>
     <h2>Per repo / branch / fork</h2>
@@ -429,13 +559,14 @@ function openapiSpec(request) {
       title: "The ARK runtime",
       version: "0.1.0",
       summary: "Local deniable vault. Hosted API is heuristics only. Not a kernel.",
-      description: engine.LIMITATION,
+      description: engine.LIMITATION + " Suite mesh /v1/mesh/* PROXY to aziel-runtime (AZIEL_RUNTIME). Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Aziel Eliab only.",
     },
     servers: [{ url: origin }],
     paths: {
             "/v1/example": { get: { operationId: "arkExample", summary: "Sample JSON payload. Does not increment downloads.", responses: { "200": { description: "OK" } } } },
       "/v1/health": { get: { operationId: "ark_health", summary: "Liveness. Does not increment download KV. Never stores phrases.", responses: { "200": { description: "ok" } } } },
       "/v1/levels": { get: { operationId: "ark_levels", summary: "Auto-lock seconds and decoy counts. Behavior, not cryptography.", responses: { "200": { description: "levels" } } } },
+      ...meshOpenApiPaths(),
       "/v1/sweep": {
         post: {
           operationId: "ark_sweep",
@@ -474,22 +605,32 @@ curl ${origin}/v1/levels
 curl -X POST ${origin}/v1/sweep -H 'content-type: application/json' \\
   -d '{"text":"hello"}'
 </pre>
+<p>Suite mesh: GET <a href="${origin}/v1/mesh">${origin}/v1/mesh</a> PROXY to aziel-runtime. Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Catalog MCP mesh_* + FragGate slug=mesh. Author: Aziel Eliab only.</p>
 <p>GET/POST under <code>/v1</code> never increment the download counter. Sweep does not store the payload. There is no cloud unlock.</p>
 <p><a href="/">Downloads</a></p>
 </body></html>`;
 }
 
-async function handleRuntime(request, url) {
+export async function handleRuntime(request, url, env) {
   const path = url.pathname.replace(/\/+$/, "") || "/";
+  if (isMeshPath(path) || path === "/v1/mesh") {
+    const out = await runMeshProxy(env, request, path + (url.search || ""));
+    if (request.method === "HEAD") {
+      return new Response(null, { status: out.status, headers: corsHeaders() });
+    }
+    return json(out.data, out.status);
+  }
   if (path === "/v1/health" && request.method === "GET") {
     return json({
       ok: true, author: "Aziel Eliab",
+      identity: "Aziel Eliab",
       product: "ark",
       runtime: true,
       kv_increment: false,
       stores_phrases: false,
       stores_vaults: false,
       not_a_kernel: true,
+      mesh: meshPointer(),
       limitation: engine.LIMITATION,
     });
   }
@@ -519,6 +660,24 @@ async function handleRuntime(request, url) {
   if (path === "/v1/levels" && request.method === "GET") {
     return json(engine.levels());
   }
+  if ((path === "/mcp" || path === "/mcp/") && (request.method === "GET" || request.method === "HEAD")) {
+    const body = {
+      ok: true,
+      product: "ark",
+      author: "Aziel Eliab",
+      identity: "Aziel Eliab",
+      catalog_mcp: "https://aziel-runtime.vibelock.workers.dev/mcp",
+      catalog_openapi: "https://aziel-runtime.vibelock.workers.dev/openapi.json",
+      worker_openapi: originOf(request) + "/openapi.json",
+      fraggate_slug: "ark",
+      mesh: meshPointer(),
+      mesh_body: { slug: "mesh", op: "status", payload: {} },
+      kv_increment: false,
+      note: "Dual surface: human Worker UI and this MCP pointer. Canonical agent path is the catalog MCP on aziel-runtime (FragGate slug ark). Catalog MCP mesh_* + FragGate slug=mesh. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM rollup live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.",
+    };
+    if (request.method === "HEAD") return new Response(null, { status: 200, headers: corsHeaders() });
+    return json(body);
+  }
   if (path === "/openapi.json" && request.method === "GET") {
     return json(openapiSpec(request));
   }
@@ -533,7 +692,7 @@ async function handleRuntime(request, url) {
     return json(engine.sweep(body || {}));
   }
   if (path.startsWith("/v1/") || path === "/v1") {
-    return json({ error: "not found", hint: "GET /v1/health /v1/levels ; POST /v1/sweep", limitation: engine.LIMITATION }, 404);
+    return json({ error: "not found", hint: "GET /v1/health /v1/levels GET /v1/mesh ; POST /v1/sweep", mesh: meshPointer(), limitation: engine.LIMITATION }, 404);
   }
   return null;
 }
@@ -546,7 +705,7 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    const runtime = await handleRuntime(request, url);
+    const runtime = await handleRuntime(request, url, env);
     if (runtime) return runtime;
 
     if ((url.pathname === "/install.sh" || url.pathname === "/install.sh/") && request.method === "GET") {
@@ -631,7 +790,7 @@ export default {
       });
     }
     if ((url.pathname === "/sitemap.xml" || url.pathname === "/sitemap.xml/") && request.method === "GET") {
-      const locs = [HOST + "/", HOST + "/download", HOST + "/install.sh", HOST + "/v1/skill", HOST + "/openapi.json", GITHUB_REPO];
+      const locs = [HOST + "/", HOST + "/download", HOST + "/install.sh", HOST + "/v1/skill", HOST + "/v1/mesh", HOST + "/openapi.json", HOST + "/mcp", GITHUB_REPO];
       const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + locs.map((u) => "  <url><loc>" + u + "</loc></url>").join("\n")
         + "\n</urlset>\n";
@@ -641,7 +800,7 @@ export default {
       });
     }
     if ((url.pathname === "/cite.json" || url.pathname === "/cite.json/") && request.method === "GET") {
-      return json({"author": "Aziel Eliab", "title": "The ARK", "github": "https://github.com/AzielEliab/ark", "download": "https://ark-download-tracker.vibelock.workers.dev/download", "doi": "10.5281/zenodo.21435810", "license": "Apache-2.0", "catalog": "https://aziel-runtime.vibelock.workers.dev/"});
+      return json({"author": "Aziel Eliab", "identity": "Aziel Eliab only", "title": "The ARK", "github": "https://github.com/AzielEliab/ark", "download": "https://ark-download-tracker.vibelock.workers.dev/download", "doi": "10.5281/zenodo.21435810", "license": "Apache-2.0", "catalog": "https://aziel-runtime.vibelock.workers.dev/", "mesh": HOST + "/v1/mesh", "mesh_catalog": "https://aziel-runtime.vibelock.workers.dev/v1/mesh"});
     }
     // /gitbaby-seo-routes
     return json({ error: "not found" }, 404);
