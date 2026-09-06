@@ -38,9 +38,9 @@ the Cloudflare namespace title).
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| GET | `/` | Isolated homepage: live count on the download button |
-| GET | `/download?repo=&tag=&asset=` | Increment KV, serve the asset from `ASSETS` |
-| GET | `/count` | JSON `{project, total}` |
+| GET | `/` | Isolated homepage: increment views, live counts on the page |
+| GET | `/download?repo=&tag=&asset=` | Increment downloads, serve the asset from `ASSETS` |
+| GET | `/count` | JSON `{project, views, downloads, total}` (reads both KV counters; does not increment) |
 | GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
 | POST | `/event` | A fork reports a download |
 

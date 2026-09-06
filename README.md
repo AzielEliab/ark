@@ -42,7 +42,8 @@ The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
 Direct tarball (also counted):
 [ark-0.1.0.tar.gz](https://ark-download-tracker.vibelock.workers.dev/download?asset=ark-0.1.0.tar.gz)
 
-- Live count JSON: [https://ark-download-tracker.vibelock.workers.dev/stats](https://ark-download-tracker.vibelock.workers.dev/stats)
+- Live count JSON `{project, views, downloads, total}`: [https://ark-download-tracker.vibelock.workers.dev/count](https://ark-download-tracker.vibelock.workers.dev/count)
+- Stats JSON: [https://ark-download-tracker.vibelock.workers.dev/stats](https://ark-download-tracker.vibelock.workers.dev/stats)
 - OpenAPI: [https://ark-download-tracker.vibelock.workers.dev/openapi.json](https://ark-download-tracker.vibelock.workers.dev/openapi.json)
 - Skill: [https://ark-download-tracker.vibelock.workers.dev/v1/skill](https://ark-download-tracker.vibelock.workers.dev/v1/skill)
 - One-click install: [https://ark-download-tracker.vibelock.workers.dev/install.sh](https://ark-download-tracker.vibelock.workers.dev/install.sh)
