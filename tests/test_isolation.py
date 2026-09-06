@@ -83,7 +83,18 @@ def test_worker_isolated() -> None:
     assert 'const PROJECT = "ark"' in src
     assert "ark-0.1.0.tar.gz" in src
     assert "ark|__total__" in src or 'PROJECT + "|__total__"' in src
+    assert "ark|__views__" in src or 'PROJECT + "|__views__"' in src
     assert "Isolated counter" in src
+    # GET /count must return both KV counters, not total-only (AZHub shape).
+    count_idx = src.find('url.pathname === "/count"')
+    assert count_idx != -1
+    count_block = src[count_idx : count_idx + 280]
+    assert "project: PROJECT" in count_block
+    assert "views: stats.views" in count_block
+    assert "downloads: stats.downloads" in count_block
+    assert "total: stats.total" in count_block
+    assert "await incrementViews(env)" in src
+    assert "async function incrementViews" in src
     assert "env.ASSETS.fetch" in src
     assert "private, no-store" in src
     assert "/v1/sweep" in src

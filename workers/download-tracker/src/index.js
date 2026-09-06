@@ -7,11 +7,12 @@ const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The AR
 /**
  * The ARK download tracker (Cloudflare Worker).
  *
- * GET  /download?repo=AzielEliab/ark&tag=latest&asset=...
- *      increments KV, serves the tarball via env.ASSETS.fetch
- *      (does not 302 to GitHub)
+ * GET  /        increments views (KV ark|__views__)
+ * GET  /download increments downloads, serves tarball via env.ASSETS.fetch (no 302)
+ * GET  /count   JSON {project, views, downloads, total} — reads both KV counters
  * GET  /stats   JSON totals + per-repo + per-branch breakdown
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
+ * /v1 does not increment views or downloads.
  *
  * KV binding DOWNLOADS. Keys: project|owner|repo|branch|fork
  * totalKey() = ark|__total__
@@ -568,7 +569,12 @@ export default {
 
     if (url.pathname === "/count" && request.method === "GET") {
       const stats = await collectStats(env);
-      return json({ project: PROJECT, total: stats.total || 0 });
+      return json({
+        project: PROJECT,
+        views: stats.views || 0,
+        downloads: stats.downloads || 0,
+        total: stats.total || 0,
+      });
     }
 
     if (url.pathname === "/stats" && request.method === "GET") {
