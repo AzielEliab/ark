@@ -44,7 +44,7 @@ the Cloudflare namespace title).
 | GET | `/count` | JSON `{project, views, downloads, total}` (reads both KV counters; does not increment) |
 | GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
 | POST | `/event` | A fork reports a download |
-| GET | `/v1/mesh` · `/v1/mesh/status` | PROXY suite mesh status via `AZIEL_RUNTIME`. Default OFF. Never enables. |
+| GET | `/v1/mesh` · `/v1/mesh/status` | PROXY suite mesh status via `AZIEL_RUNTIME`. Default OFF. Never enables. QNS-CD-1.0 cross-map (no public qnsd proxy). |
 | GET | `/v1/mesh/nodes` | PROXY Live Nodes roster (5-minute presence) |
 | POST | `/v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` | PROXY. Bearer required to enable. No auto-heal. |
 
@@ -63,9 +63,14 @@ All responses include `Access-Control-Allow-Origin: *`.
 CORS `*`. `GET /v1/health`, `GET /v1/levels`, `POST /v1/sweep` `{b64|text}`,
 `GET /openapi.json` (OpenAPI 3.1), `GET /ai`.
 `/v1/mesh/*` PROXY to aziel-runtime suite mesh (`AZIEL_RUNTIME`). Default OFF.
-QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.
-Human UI Live Nodes strip polls `GET /v1/mesh`. Catalog MCP `mesh_*` + FragGate
-`slug=mesh`. Full node process is local `qnm-node/`.
+QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a
+hub cite / Worker mesh cross-map only (local qnsd in
+[qnm-node](https://github.com/AzielEliab/qnm-node); runtime cites + catalog
+`mesh` field in [aziel-runtime](https://github.com/AzielEliab/aziel-runtime);
+pair custody on [AZInterface](https://github.com/AzielEliab/azinterface)).
+Not a Softwares-tab product. No public qnsd proxy. No Node Gate. No auto-heal.
+Not anonymity. Human UI Live Nodes strip polls `GET /v1/mesh`. Catalog MCP
+`mesh_*` + FragGate `slug=mesh`. Full node process is local `qnm-node/`.
 Routes under `/v1` **do not** increment download KV.
 Sweep is Mode E heuristics only. No clamscan. Payload is not stored.
 Do NOT add unlock/encrypt/decrypt that takes a passphrase.

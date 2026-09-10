@@ -6,8 +6,12 @@
  */
 import assert from "node:assert/strict";
 import {
+  attachQnsCd,
   joinOriginUrl,
   meshPointer,
+  QNS_CD,
+  QNS_CD_SPEC,
+  MESH_NOTE,
   runMeshProxy,
   SERVICE_BINDING_ORIGIN,
   DEFAULT_RUNTIME_ORIGIN,
@@ -23,6 +27,20 @@ assert.equal(meshPointer().enabled_default, false);
 assert.equal(meshPointer().node_gate, false);
 assert.equal(meshPointer().rollup, "live|locked|isolated");
 assert.equal(meshPointer().fraggate_slug, "mesh");
+assert.equal(QNS_CD_SPEC, "QNS-CD-1.0");
+assert.equal(QNS_CD.spec, "QNS-CD-1.0");
+assert.equal(QNS_CD.packet, "QNS1");
+assert.equal(QNS_CD.transfer, "photon");
+assert.equal(QNS_CD.public_proxy, false);
+assert.equal(QNS_CD.qnsd, false);
+assert.equal(QNS_CD.node_gate, false);
+assert.equal(QNS_CD.softwares_tab, false);
+assert.equal(QNS_CD.default_off, true);
+assert.equal(meshPointer().qns_cd_spec, "QNS-CD-1.0");
+assert.equal(meshPointer().qns_cd.spec, "QNS-CD-1.0");
+assert.match(MESH_NOTE, /QNS-CD-1.0/);
+assert.match(meshPointer().note, /QNS-CD-1.0/);
+assert.equal(attachQnsCd({ ok: true }).qns_cd_spec, "QNS-CD-1.0");
 
 const seen = [];
 function jsonRes(body, status = 200) {
@@ -69,6 +87,9 @@ assert.equal(meshOp.data.ok, true);
 assert.equal(meshOp.data.enabled, false);
 assert.equal(meshOp.data.code, "MESH-OK");
 assert.deepEqual(meshOp.data.rollup, { live: 0, locked: 0, isolated: 0 });
+assert.equal(meshOp.data.qns_cd_spec, "QNS-CD-1.0");
+assert.equal(meshOp.data.qns_cd.spec, "QNS-CD-1.0");
+assert.equal(meshOp.data.qns_cd.public_proxy, false);
 
 const statusOp = await runMeshProxy(env, new Request(`${HOST}/v1/mesh/status`), "/v1/mesh/status");
 assert.equal(statusOp.status, 200);
@@ -131,5 +152,7 @@ const mcp = await worker("/mcp", "GET");
 assert.equal(mcp.status, 200);
 assert.equal(mcp.data.mesh.fraggate_slug, "mesh");
 assert.equal(mcp.data.mesh.enabled_default, false);
+assert.equal(mcp.data.mesh.qns_cd_spec, "QNS-CD-1.0");
+assert.equal(mcp.data.mesh.qns_cd.qnsd, false);
 
 console.log("verify-mesh-proxy: /v1/mesh + /v1/mesh/status MESH-OK enabled:false");

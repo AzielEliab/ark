@@ -1,6 +1,6 @@
 ---
 name: The ARK
-description: Use when calling The ARK hosted /v1 or installing the local package. Dual surface: Worker /v1 + GET /mcp, or aziel-runtime FragGate slug ark. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.
+description: Use when calling The ARK hosted /v1 or installing the local package. Dual surface: Worker /v1 + GET /mcp, or aziel-runtime FragGate slug ark. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer (hub cite / Worker mesh cross-map only; no public qnsd proxy). No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.
 ---
 
 # The ARK
@@ -26,12 +26,12 @@ Ops (do **not** increment downloads or views):
 
 - `GET /v1/health` — liveness
 - `GET /v1/skill` — this file
-- `GET /v1/mesh` — PROXY suite mesh status. Default OFF. QNM live|locked|isolated. Never enables.
+- `GET /v1/mesh` — PROXY suite mesh status. Default OFF. QNM live|locked|isolated. QNS-CD-1.0 cross-map. Never enables. No public qnsd proxy.
 - `GET /v1/mesh/nodes` — PROXY Live Nodes roster
 - `POST /v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` — PROXY. Bearer required to enable. No auto-heal.
 - Product POSTs listed in OpenAPI
 
-Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. This Worker `/v1/mesh/*` PROXY to aziel-runtime via AZIEL_RUNTIME. Catalog MCP `mesh_*` + FragGate `slug=mesh`. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. This Worker `/v1/mesh/*` PROXY to aziel-runtime via AZIEL_RUNTIME. Catalog MCP `mesh_*` + FragGate `slug=mesh`. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer (hub cite / Worker mesh cross-map only; local qnsd in [qnm-node](https://github.com/AzielEliab/qnm-node); runtime cites in [aziel-runtime](https://github.com/AzielEliab/aziel-runtime); pair custody on [AZInterface](https://github.com/AzielEliab/azinterface); no public proxy). No Node Gate. No auto-heal. Not anonymity.
 
 ## Example
 
@@ -67,6 +67,6 @@ Author: **Aziel Eliab**. Honest scope: Mode E heuristics sweep. Not a kernel. Ho
 - This Worker OpenAPI: https://ark-download-tracker.vibelock.workers.dev/openapi.json
 - Sample payload: `GET https://ark-download-tracker.vibelock.workers.dev/v1/example`
 
-Local UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `ark doctor`. Worker homepage Live Nodes strip polls `GET /v1/mesh` (default OFF).
+Local UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `ark doctor`. Worker homepage Live Nodes strip polls `GET /v1/mesh` (default OFF). QNS-CD-1.0 is a hub cite / Worker mesh cross-map only — not a Softwares-tab product.
 
-Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import the catalog or Worker OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. Suite mesh: `GET /v1/mesh` PROXY (default OFF). Catalog MCP `mesh_*` + FragGate `slug=mesh`.
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import the catalog or Worker OpenAPI as a custom tool (Grok, Claude, Gemini, and similar), as a GPT Action in ChatGPT, or as HTTP tools (Venice and other HTTP-tool clients). Cursor and Glama: connect the catalog MCP. Suite mesh: `GET /v1/mesh` PROXY (default OFF). Catalog MCP `mesh_*` + FragGate `slug=mesh`. QNS-CD-1.0 photon QNS1 packet transfer is a cite only.

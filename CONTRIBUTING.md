@@ -37,7 +37,9 @@ Do not run tests against the 256–1024 MiB production profiles.
 9. **Door vs local op.** `/v1/mesh/*` PROXY to aziel-runtime via
    `AZIEL_RUNTIME`. Local ops are `/v1/{op}` only. Never treat
    `mesh/status` as a local op name. Suite mesh default OFF; QNM
-   rollup live|locked|isolated; no Node Gate; no auto-heal; not anonymity.
+   rollup live|locked|isolated; QNS-CD-1.0 is a hub cite / Worker mesh
+   cross-map only (no public qnsd proxy); no Node Gate; no auto-heal;
+   not anonymity.
 10. New behavior needs a test that fails without the change.
 11. Production Argon2id profiles stay as spec. Test profiles are env-gated.
 
@@ -54,7 +56,7 @@ Do not run tests against the 256–1024 MiB production profiles.
 - Source megalith: `docs/source/`
 - Flutter: `mobile/`
 - Isolated counter + hosted heuristics API: `workers/download-tracker/`
-- Suite mesh / QNM Live Nodes: `workers/download-tracker/src/mesh.js` (`/v1/mesh/*` PROXY to aziel-runtime).
+- Suite mesh / QNM Live Nodes: `workers/download-tracker/src/mesh.js` (`/v1/mesh/*` PROXY to aziel-runtime). QNS-CD-1.0 (`QNS_CD_SPEC` / `QNS_CD`) is a hub cite / Worker mesh cross-map only.
 
 ## License of contributions
 

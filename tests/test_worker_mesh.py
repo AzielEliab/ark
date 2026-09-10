@@ -28,6 +28,11 @@ def test_mesh_contract_default_off_qnm_law() -> None:
     assert "live|locked|isolated" in MESH
     assert "enabled_default: false" in MESH
     assert "anon_broadcast_publish_path: false" in MESH
+    assert 'QNS_CD_SPEC = "QNS-CD-1.0"' in MESH
+    assert "export const QNS_CD" in MESH
+    assert "photon QNS1 packet transfer" in MESH
+    assert "QNS-CD-1.0" in MESH
+    assert "No public qnsd proxy" in MESH or "no public qnsd proxy" in MESH
     assert "Aziel Eliab" in MESH
 
 
@@ -99,6 +104,21 @@ def test_docs_advertise_mesh_proxy() -> None:
     assert "/v1/mesh" in README
     assert "/v1/mesh" in SKILL
     assert "QNM-BUILD-1.0" in WORKER_README
+    assert "QNS-CD-1.0" in README
+    assert "QNS-CD-1.0" in SKILL
+    assert "QNS-CD-1.0" in WORKER_README
     assert "AZIEL_RUNTIME" in WORKER_README
     assert "Live Nodes" in WORKER_README
     assert "Aziel Eliab" in MESH
+
+
+def test_qns_cd_cross_map_not_a_product() -> None:
+    assert "softwares_tab: false" in MESH
+    assert "public_proxy: false" in MESH
+    assert "qnsd: false" in MESH
+    assert "https://github.com/AzielEliab/qnm-node" in MESH
+    assert "https://github.com/AzielEliab/aziel-runtime" in MESH
+    assert "https://github.com/AzielEliab/azinterface" in MESH
+    assert "attachQnsCd" in MESH
+    assert "QNS-CD-1.0" in INDEX
+    assert "no public qnsd proxy" in INDEX
