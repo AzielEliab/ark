@@ -39,7 +39,8 @@ the Cloudflare namespace title).
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| GET | `/` | Isolated homepage: increment views, live counts on the page, Live Nodes strip |
+| GET | `/` | Isolated homepage: increment views, live counts on the page, Live Nodes strip. Rose-star brand mark top-left (`/sigil.png`, empty alt; not "everblooming sigil" wording). |
+| GET | `/sigil.png` | Same-origin Aziel Eliab rose-star brand mark (Worker assets). |
 | GET | `/download?repo=&tag=&asset=` | Increment downloads, serve the asset from `ASSETS` |
 | GET | `/count` | JSON `{project, views, downloads, total}` (reads both KV counters; does not increment) |
 | GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
