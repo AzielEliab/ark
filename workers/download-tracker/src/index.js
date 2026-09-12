@@ -302,9 +302,14 @@ async function indexHtml(env) {
 <meta name="description" content="Local deniable vault by Aziel Eliab: every phrase is a login, and an empty vault is indistinguishable from a wrong phrase.">
 <meta name="author" content="Aziel Eliab">
 <link rel="canonical" href="https://ark-download-tracker.vibelock.workers.dev/">
+<link rel="icon" href="/sigil.png" type="image/png">
 <meta property="og:title" content="The ARK — Aziel Eliab">
 <meta property="og:description" content="Local deniable vault by Aziel Eliab: every phrase is a login, and an empty vault is indistinguishable from a wrong phrase.">
 <meta property="og:url" content="https://ark-download-tracker.vibelock.workers.dev/">
+<meta property="og:image" content="https://ark-download-tracker.vibelock.workers.dev/sigil.png">
+<meta property="og:image:alt" content="Aziel Eliab rose-star brand mark. Author Aziel Eliab.">
+<meta name="twitter:image" content="https://ark-download-tracker.vibelock.workers.dev/sigil.png">
+<meta name="twitter:image:alt" content="Aziel Eliab rose-star brand mark. Author Aziel Eliab.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
 {
@@ -327,6 +332,8 @@ async function indexHtml(env) {
 <style>
   :root { color-scheme: dark; }
   body { font: 16px/1.45 system-ui, sans-serif; max-width: 42rem; margin: 3rem auto; padding: 0 1.25rem 4rem; background: #0e1014; color: #e8eaef; }
+  .brandrow { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin: 0 0 1.15rem; }
+  .brandmark { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; box-shadow: 0 0 0 1px #d4af3733; }
   h1 { font-size: 1.75rem; margin: 0 0 .35rem; }
   .motto { color: #9aa3b2; margin: 0 0 1.5rem; }
   .card { border: 1px solid #2a3140; border-radius: 12px; padding: 1.25rem 1.35rem; background: #151922; }
@@ -361,6 +368,7 @@ async function indexHtml(env) {
   #meshProducts { flex-basis: 100%; margin: 0; }
 </style>
 <body>
+  <div class="brandrow"><img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async"></div>
   <h1>The ARK</h1>
   <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel. Author Aziel Eliab.</p>
   <p class="banner">Local deniable vault. “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.</p>
@@ -587,12 +595,15 @@ function aiHelpPage(request) {
 <style>
   :root { color-scheme: dark; }
   body { font: 16px/1.45 system-ui, sans-serif; max-width: 44rem; margin: 3rem auto; padding: 0 1.25rem; background: #0e1014; color: #e8eaef; }
+  .brandrow { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin: 0 0 1.15rem; }
+  .brandmark { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; box-shadow: 0 0 0 1px #d4af3733; }
   a { color: #c9d4ff; }
   code, pre { background: #151922; padding: .15rem .35rem; border-radius: 4px; }
   pre { padding: .85rem 1rem; overflow: auto; }
   .banner { border: 1px solid #5c4a1a; background: #241c0d; color: #f0d78c; padding: .85rem 1rem; border-radius: 8px; }
 </style>
 <body>
+<div class="brandrow"><img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async"></div>
 <h1>The ARK runtime</h1>
 <p class="banner">${engine.LIMITATION}</p>
 <h2>Use with AI assistants</h2>

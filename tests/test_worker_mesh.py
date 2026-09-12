@@ -112,6 +112,37 @@ def test_docs_advertise_mesh_proxy() -> None:
     assert "Aziel Eliab" in MESH
 
 
+def test_home_rose_star_brandmark_no_everblooming_on_mark() -> None:
+    """Worker UI chrome: rose-star top-left, empty alt, no words on the mark."""
+    mark = (
+        '<div class="brandrow"><img class="brandmark" src="/sigil.png" '
+        'width="40" height="40" alt="" decoding="async"></div>'
+    )
+    assert mark in INDEX
+    assert ".brandrow" in INDEX
+    assert ".brandmark" in INDEX
+    assert 'src="/sigil.png"' in INDEX
+    assert 'alt=""' in INDEX
+    assert 'alt="Everblooming sigil' not in INDEX
+    assert 'alt="everblooming sigil' not in INDEX
+    assert "Everblooming sigil ·" not in INDEX
+    # Scrub is for the public mark only. Do not rewrite header/skill strings
+    # if a verify contract later requires the words "Everblooming".
+    brand_start = INDEX.find('<div class="brandrow">')
+    brand_end = INDEX.find("</div>", brand_start) + len("</div>")
+    brand = INDEX[brand_start:brand_end]
+    assert "everblooming" not in brand.lower()
+    assert 'alt=""' in brand
+    assert "MESH_DEFAULT_OFF = true" in MESH
+
+
+def test_public_sigil_png_is_rose_star_asset() -> None:
+    sigil = ROOT / "workers/download-tracker/public/sigil.png"
+    data = sigil.read_bytes()
+    assert data[:8] == b"\x89PNG\r\n\x1a\n"
+    assert len(data) > 1024
+
+
 def test_qns_cd_cross_map_not_a_product() -> None:
     assert "softwares_tab: false" in MESH
     assert "public_proxy: false" in MESH
