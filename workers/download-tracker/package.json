@@ -1,7 +1,9 @@
 {
   "type": "module",
   "scripts": {
-    "verify-mesh": "node scripts/verify-mesh-proxy.mjs"
+    "verify-mesh": "node scripts/verify-mesh-proxy.mjs",
+    "verify-classify": "node scripts/verify-classify-stats.mjs",
+    "verify": "node scripts/verify-mesh-proxy.mjs && node scripts/verify-classify-stats.mjs"
   },
   "dependencies": {
     "wrangler": "^4.127.1"

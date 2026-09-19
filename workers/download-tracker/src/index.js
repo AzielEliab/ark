@@ -1,4 +1,14 @@
 import * as engine from "./engine.js";
+import { classifyRequest } from "./classify.js";
+import {
+  classificationBlock,
+  incrementSplitKey,
+  isStatsMetaKey,
+  readSplitCounters,
+  shapeCount,
+  shapeStats,
+  splitKeys,
+} from "./stats-shape.js";
 import {
   isMeshPath,
   meshOpenApiPaths,
@@ -13,15 +23,18 @@ const SKILL_MARKDOWN = "---\nname: The ARK\ndescription: Use when calling The AR
 /**
  * The ARK download tracker (Cloudflare Worker).
  *
- * GET  /        increments views (KV ark|__views__)
+ * GET  /        increments views (KV ark|__views__) + views_human|views_bot
  * GET  /download increments downloads, serves tarball via env.ASSETS.fetch (no 302)
- * GET  /count   JSON {project, views, downloads, total} — reads both KV counters
- * GET  /stats   JSON totals + per-repo + per-branch breakdown
+ * GET  /count   JSON {project, views, downloads, total} plus additive human/bot
+ * GET  /stats   JSON totals + additive human/bot + per-repo + per-branch
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
  * /v1, /mcp, and /v1/mesh/* do not increment views or downloads.
  *
  * KV binding DOWNLOADS. Keys: project|owner|repo|branch|fork
  * totalKey() = ark|__total__
+ * Additive split keys (fleet copy): ark|__views_human__ / __views_bot__ /
+ * __downloads_human__ / __downloads_bot__. Legacy totals are never reset.
+ * /stats derives the bot bucket so views === views_human + views_bot.
  * CORS *. No secrets in this tree.
  * Isolated counter: Worker ark-download-tracker, project ark.
  * Not mixed with any other product.
@@ -133,15 +146,25 @@ function githubAssetUrl(owner, repo, tag, asset) {
 }
 
 function totalKey() {
-  return PROJECT + "|__total__";
+  return splitKeys(PROJECT).downloads;
 }
 
-async function increment(env, dims) {
+async function incrementClassified(env, request, kind) {
+  const keys = splitKeys(PROJECT);
+  const cls = classifyRequest(request);
+  const humanKey = kind === "views" ? keys.viewsHuman : keys.downloadsHuman;
+  const botKey = kind === "views" ? keys.viewsBot : keys.downloadsBot;
+  await incrementSplitKey(env, cls.kind === "human" ? humanKey : botKey);
+  return cls;
+}
+
+async function increment(env, dims, request) {
   const key = kvKey(dims);
   const n = parseInt((await env.DOWNLOADS.get(key)) || "0", 10) + 1;
   await env.DOWNLOADS.put(key, String(n));
   const tot = parseInt((await env.DOWNLOADS.get(totalKey())) || "0", 10) + 1;
   await env.DOWNLOADS.put(totalKey(), String(tot));
+  if (request) await incrementClassified(env, request, "downloads");
   return tot;
 }
 
@@ -156,7 +179,7 @@ async function listAllKeys(env) {
   return keys;
 }
 
-async function collectStats(env) {
+async function collectStats(env, request) {
   const keys = await listAllKeys(env);
   let total = 0;
   const by_repo = {};
@@ -166,7 +189,7 @@ async function collectStats(env) {
 
   for (const k of keys) {
     const name = k.name;
-    if (name === viewsKey() || name === totalKey() || name === githubCacheKey()) continue;
+    if (isStatsMetaKey(name, PROJECT)) continue;
     const n = parseInt((await env.DOWNLOADS.get(name)) || "0", 10);
     if (!Number.isFinite(n) || n <= 0) continue;
     const parts = name.split("|");
@@ -183,33 +206,45 @@ async function collectStats(env) {
 
   const totalDirect = parseInt((await env.DOWNLOADS.get(totalKey())) || "0", 10);
   const shown = Number.isFinite(totalDirect) && totalDirect > 0 ? totalDirect : total;
-  return {
-    project: PROJECT,
-    total: shown,
-    views: parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) || 0,
-    downloads: shown,
-    by_repo,
-    by_branch,
-    by_fork,
-    breakdown,
-    github: (await githubStats(env)),
-    note: "Forks identified by GitHub owner/repo. Key layout: project|owner|repo|branch|fork",
-  };
+  const split = await readSplitCounters(env, PROJECT);
+  const views = split.views;
+  return shapeStats(
+    {
+      project: PROJECT,
+      views,
+      downloads: shown,
+      total: shown,
+      views_human: split.views_human,
+      views_bot: split.views_bot,
+      downloads_human: split.downloads_human,
+      downloads_bot: split.downloads_bot,
+      classification: classificationBlock(request),
+    },
+    {
+      by_repo,
+      by_branch,
+      by_fork,
+      breakdown,
+      github: (await githubStats(env)),
+      note: "Forks identified by GitHub owner/repo. Key layout: project|owner|repo|branch|fork. Additive human/bot: derive bot on read (legacy totals not reset).",
+    },
+  );
 }
 
 
 
 function viewsKey() {
-  return PROJECT + "|__views__";
+  return splitKeys(PROJECT).views;
 }
 
 function githubCacheKey() {
-  return PROJECT + "|__github__";
+  return splitKeys(PROJECT).github;
 }
 
-async function incrementViews(env) {
+async function incrementViews(env, request) {
   const n = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) + 1;
   await env.DOWNLOADS.put(viewsKey(), String(n));
+  if (request) await incrementClassified(env, request, "views");
   return n;
 }
 
@@ -731,24 +766,19 @@ export default {
     }
 
     if (url.pathname === "/" && request.method === "GET") {
-      await incrementViews(env);
+      await incrementViews(env, request);
       return new Response(await indexHtml(env), {
         headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders() },
       });
     }
 
     if (url.pathname === "/count" && request.method === "GET") {
-      const stats = await collectStats(env);
-      return json({
-        project: PROJECT,
-        views: stats.views || 0,
-        downloads: stats.downloads || 0,
-        total: stats.total || 0,
-      });
+      const stats = await collectStats(env, request);
+      return json(shapeCount(stats));
     }
 
     if (url.pathname === "/stats" && request.method === "GET") {
-      return json(await collectStats(env));
+      return json(await collectStats(env, request));
     }
 
     if (url.pathname === "/event" && request.method === "POST") {
@@ -759,7 +789,7 @@ export default {
         return json({ error: "JSON body required" }, 400);
       }
       const dims = parseDims(body || {});
-      const count = await increment(env, dims);
+      const count = await increment(env, dims, request);
       return json({
         ok: true,
         key: kvKey(dims),
@@ -776,7 +806,7 @@ export default {
       const dims = parseDims(url.searchParams);
       const asset = dims.asset || DEFAULT_ASSET;
       dims.asset = asset;
-      if (request.method === "GET") await increment(env, dims);
+      if (request.method === "GET") await increment(env, dims, request);
       return serveAsset(request, env, asset, { head: request.method === "HEAD" });
     }
 
@@ -787,7 +817,7 @@ export default {
       }
       const asset = dims.asset || DEFAULT_ASSET;
       dims.asset = asset;
-      if (request.method === "GET") await increment(env, dims);
+      if (request.method === "GET") await increment(env, dims, request);
       return serveAsset(request, env, asset, { head: request.method === "HEAD" });
     }
 
