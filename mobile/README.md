@@ -1,13 +1,16 @@
 # The ARK — iPhone & Android
 
-Phrase field, security level, list placeholder. Banner: the crypto engine
-is the desktop package; this app is the dome UI.
+A phrase field for the desktop vault. This phone app does not encrypt files.
 
-Offline. No analytics. Dark matte / gold.
+**Author:** Aziel Eliab
 
-Application id: `com.azieeliab.ark`
+## Start
 
-Not a kernel. Local deniable vault. Forgotten phrase = permanent loss.
+1. `cd mobile && flutter create --org com.azieeliab --project-name ark .`
+2. `flutter pub get`
+3. `flutter run`
+
+Application id: `com.azieeliab.ark`. Offline. No analytics. Light and dark follow the system.
 
 ## Open in Android Studio / Xcode
 

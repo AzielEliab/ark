@@ -26,7 +26,7 @@ python -m pip install -U pip
 python -m pip install -e .
 
 echo
-echo "Installed The ARK."
-echo "Run:  ark ui"
-echo "Then open http://127.0.0.1:8850  (loopback only)"
+echo "Installed."
+echo "Next: ark ui"
+echo "Then open http://127.0.0.1:8850/"
 echo "Author: Aziel Eliab."

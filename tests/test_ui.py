@@ -29,10 +29,22 @@ def test_ui_get_root_contains_ark(tmp_path) -> None:
         assert "ARK" in html
         assert "The ARK" in html
         assert "not a kernel" in html.lower()
+        assert "Open vault" in html
+        assert "Advanced" in html
         assert "cdnjs" not in html.lower() and "unpkg" not in html.lower() and "jsdelivr" not in html.lower()
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/style.css", timeout=3) as resp:
             css = resp.read().decode("utf-8")
         assert "c9a227" in css or "--gold" in css
+        assert "prefers-color-scheme" in css
+        assert "focus-visible" in css
+        req_json = urllib.request.Request(
+            f"http://127.0.0.1:{port}/",
+            headers={"Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req_json, timeout=3) as resp:
+            machine = json.loads(resp.read().decode("utf-8"))
+        assert machine["product"] == "ark"
+        assert machine["unlocked"] is False
         req = urllib.request.Request(
             f"http://127.0.0.1:{port}/api/unlock",
             data=json.dumps({"phrase": "ui-test-phrase", "level": "normal"}).encode("utf-8"),
