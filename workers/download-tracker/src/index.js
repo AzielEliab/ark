@@ -365,78 +365,258 @@ async function indexHtml(env) {
 </script>
 <!-- gitbaby-seo -->
 <style>
-  :root { color-scheme: dark; }
-  body { font: 16px/1.45 system-ui, sans-serif; max-width: 42rem; margin: 3rem auto; padding: 0 1.25rem 4rem; background: #0e1014; color: #e8eaef; }
-  .brandrow { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin: 0 0 1.15rem; }
+  :root {
+    color-scheme: dark;
+    --bg: #0c0d10;
+    --ink: #f4f1ea;
+    --muted: #c9c2b4;
+    --panel: #16181d;
+    --line: #3a3428;
+    --gold: #e6c35c;
+    --btn-bg: #f4f1ea;
+    --btn-ink: #14120c;
+    --focus: #ffe08a;
+    --link: #f0d78c;
+    --pass: #146c43;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: light;
+      --bg: #f7f5f1;
+      --ink: #1c1915;
+      --muted: #3f3a33;
+      --panel: #ffffff;
+      --line: #d9d2c4;
+      --gold: #5c4300;
+      --btn-bg: #1c1915;
+      --btn-ink: #f7f5f1;
+      --focus: #0842a0;
+      --link: #5c4300;
+      --pass: #0e6b3c;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font: 16px/1.5 system-ui, "Segoe UI", sans-serif;
+    overflow-x: clip;
+  }
+  a { color: var(--link); }
+  code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  code { font-size: .92em; }
+  .hero, main, footer.quiet {
+    width: min(40rem, 100%);
+    margin: 0 auto;
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+  .hero { padding-top: 1.35rem; }
+  .brandrow { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin: 0 0 .85rem; }
   .brandmark { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; box-shadow: 0 0 0 1px #d4af3733; }
-  h1 { font-size: 1.75rem; margin: 0 0 .35rem; }
-  .motto { color: #9aa3b2; margin: 0 0 1.5rem; }
-  .card { border: 1px solid #2a3140; border-radius: 12px; padding: 1.25rem 1.35rem; background: #151922; }
-  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 0 0 1rem; }
-  .count { font-size: 2.2rem; font-variant-numeric: tabular-nums; font-weight: 700; margin: 0; }
-  .count span { display: block; font-size: .95rem; font-weight: 500; color: #9aa3b2; }
-  .kid { font-size: 1.05rem; margin: 0 0 1rem; }
-  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 0 0 .85rem; }
-  @media (max-width: 520px) { .btns { grid-template-columns: 1fr; } }
-  a.btn, button.btn { display: block; width: 100%; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.2rem; font-weight: 750; padding: 1rem 1.1rem; border-radius: 10px; border: 0; cursor: pointer; text-decoration: none; }
-  a.btn.primary { background: #e8eaef; color: #0e1014; }
-  button.btn.install { background: #c9a227; color: #14110a; }
-  button.btn.install.copied { background: #7dcf9a; color: #0e1014; }
-  .meta { margin-top: 1.1rem; color: #9aa3b2; font-size: .92rem; }
-  .meta a { color: #c9d4ff; }
-  .iso { margin-top: .85rem; font-size: .85rem; color: #7d8696; }
-  .banner { border: 1px solid #5c4a1a; background: #241c0d; color: #f0d78c; padding: .85rem 1rem; border-radius: 8px; margin: 0 0 1.2rem; font-size: .92rem; }
-  pre { background: #0e1014; padding: .75rem .9rem; overflow: auto; border-radius: 8px; font-size: .82rem; }
-  code { font-size: .88rem; }
-
-  .cite { margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid #2a3140; }
-  .cite h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
-  .cite p { color: #c5ccd8; font-size: .95rem; }
-  .cite a { color: #c9d4ff; }
-  #meshStrip { border: 1px solid #c9a227; border-radius: 12px; padding: .85rem 1rem; background: #151922; margin: 0 0 1.1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .7rem 1rem; font-size: .88rem; color: #9aa3b2; }
-  #meshStrip .live { color: #e8eaef; }
-  #meshStrip .live b { color: #c9a227; font-size: 1.35rem; margin-right: .35rem; }
-  #meshStrip .rollup b { color: #c9a227; }
-  #meshStrip button { font: 700 .78rem/1 ui-monospace, Menlo, Consolas, monospace; height: 2rem; padding: 0 .75rem; border-radius: 8px; background: #101010; color: #e8eaef; border: 1px solid #c9a227; cursor: pointer; }
-  #meshStrip button:hover { background: #241c0d; color: #c9a227; }
-  #meshStrip input { width: 10rem; padding: .4rem .55rem; border: 1px solid #c9a227; border-radius: 8px; background: #0e1014; color: #e8eaef; font: inherit; }
-  #meshProducts { flex-basis: 100%; margin: 0; }
+  h1 { font-size: 2rem; font-weight: 650; letter-spacing: .02em; margin: 0 0 .25rem; line-height: 1.15; }
+  .motto { color: var(--gold); font-style: italic; margin: 0 0 .55rem; font-size: 1.08rem; }
+  .lede, .honesty, .kid, .asset-note { color: var(--muted); margin: 0 0 .9rem; max-width: 38rem; }
+  .asset-note { font-size: .92rem; }
+  .honesty { font-size: .92rem; }
+  a.btn.block.primary {
+    display: block;
+    width: 100%;
+    max-width: 36rem;
+    margin: .15rem 0 .7rem;
+    padding: 1.05rem 1.2rem;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    text-align: center;
+    text-decoration: none;
+    font: 750 1.25rem/1.1 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: .02em;
+    cursor: pointer;
+  }
+  a.btn.block.primary:hover { filter: brightness(1.06); }
+  .features {
+    list-style: none;
+    margin: .15rem 0 1rem;
+    padding: 0;
+    display: grid;
+    gap: .45rem;
+    max-width: 38rem;
+  }
+  .features li { margin: 0; padding-left: 1.05rem; position: relative; }
+  .features li::before {
+    content: "";
+    width: .45rem;
+    height: .45rem;
+    border-radius: 50%;
+    background: var(--gold);
+    position: absolute;
+    left: 0;
+    top: .5rem;
+  }
+  .card, .cite {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1rem 1.05rem 1.1rem;
+    background: var(--panel);
+    margin: 0 0 1rem;
+    max-width: 100%;
+  }
+  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 0 0 .85rem; }
+  .count { font-size: 2rem; font-variant-numeric: tabular-nums; font-weight: 700; margin: 0; color: var(--ink); }
+  .count span { display: block; font-size: .92rem; font-weight: 500; color: var(--muted); }
+  button.btn.install {
+    font: 700 .95rem/1.1 ui-monospace, Menlo, Consolas, monospace;
+    padding: .72rem 1rem;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button.btn.install.copied { background: var(--pass); color: #f4f1ea; border-color: transparent; }
+  pre {
+    background: var(--bg);
+    color: var(--ink);
+    padding: .75rem .9rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    font-size: .82rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+    margin: .75rem 0 0;
+  }
+  h2 { font-size: 1rem; margin: 0 0 .45rem; letter-spacing: .04em; }
+  .meta, .iso { margin: .75rem 0 0; color: var(--muted); font-size: .9rem; }
+  .cite h2 { font-size: 1.05rem; }
+  .cite p { margin: .35rem 0; }
+  ul { margin: .3rem 0 0; padding-left: 1.15rem; }
+  li { overflow-wrap: anywhere; }
+  #meshStrip {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: .85rem 1rem;
+    background: var(--panel);
+    margin: 0 0 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .7rem 1rem;
+    font-size: .88rem;
+    color: var(--muted);
+    max-width: 100%;
+    min-width: 0;
+  }
+  #meshStrip .live { color: var(--ink); }
+  #meshStrip .live b { color: var(--gold); font-size: 1.35rem; margin-right: .35rem; }
+  #meshStrip .rollup b { color: var(--gold); }
+  #meshStrip > span { display: flex; flex-wrap: wrap; gap: .45rem; max-width: 100%; min-width: 0; }
+  #meshStrip button {
+    font: 700 .78rem/1 ui-monospace, Menlo, Consolas, monospace;
+    height: 2rem;
+    padding: 0 .75rem;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    cursor: pointer;
+  }
+  #meshStrip button:hover { border-color: var(--gold); color: var(--gold); }
+  #meshStrip input {
+    width: min(16rem, 100%);
+    max-width: 100%;
+    min-width: 0;
+    padding: .4rem .55rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+  }
+  #meshProducts { flex-basis: 100%; margin: 0; overflow-wrap: anywhere; min-width: 0; }
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+  a.skip {
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    transform: translateY(-140%);
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    padding: .45rem .7rem;
+    border-radius: 8px;
+    text-decoration: none;
+    z-index: 5;
+  }
+  a.skip:focus, a.skip:focus-visible { transform: none; }
+  footer.quiet { padding-top: .35rem; padding-bottom: 2.6rem; color: var(--muted); font-size: .9rem; }
+  footer.quiet p { margin: .35rem 0; }
+  footer.quiet a { color: var(--ink); }
+  @media (max-width: 520px) {
+    .hero { padding-top: 1.1rem; }
+    a.btn.block.primary { max-width: none; }
+    h1 { font-size: 1.75rem; }
+  }
 </style>
 <body>
-  <div class="brandrow"><img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async"></div>
-  <h1>The ARK</h1>
-  <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel. Author Aziel Eliab.</p>
-  <p class="banner">Local deniable vault. “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel. Not a bootable OS, not a worm, not hosted unlock. Author: Aziel Eliab.</p>
-  <aside id="meshStrip" aria-label="Live Nodes">
-    <span class="live"><b id="meshLiveCount">0</b> Live Nodes</span>
-    <span id="meshLine">Suite mesh: off (default). QNM-BUILD-1.0. QNS-CD-1.0. Not an anonymity network.</span>
-    <span class="rollup">live <b id="qnmLive">0</b> · locked <b id="qnmLocked">0</b> · isolated <b id="qnmIsolated">0</b></span>
-    <span>No Node Gate · No auto-heal · Aziel Eliab only</span>
-    <span>
-      <input id="meshBearer" type="text" placeholder="bearer (required to enable)" autocomplete="off" spellcheck="false">
-      <button type="button" id="meshEnable">Enable</button>
-      <button type="button" id="meshDisable">Disable</button>
-      <button type="button" id="meshJoin">Join</button>
-      <button type="button" id="meshLeave">Leave</button>
-    </span>
-    <p id="meshProducts">Catalog MCP mesh_* · FragGate slug=mesh · /v1/mesh/* PROXY · QNS-CD-1.0 cite · not AnonBroadcast · not AZMail ring · not a Node Gate · no public qnsd proxy</p>
-  </aside>
-  <div class="card">
-    <div class="nums">
-      <p class="count">${v}<span>Views</span></p>
-      <p class="count">${n}<span>Downloads</span></p>
-    </div>
-    <p class="kid"><strong>Two big buttons.</strong> Download saves the gzip (the Downloads number goes up). One-click install copies a Terminal command. After it finishes, type <code>ark ui</code>.</p>
-    <div class="btns">
-      <a class="btn primary dl" href="/download?asset=${DEFAULT_ASSET}">Download</a>
+  <a class="skip" href="#downloadBtn">Skip to download</a>
+  <header class="hero">
+    <div class="brandrow"><img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async"></div>
+    <h1>The ARK</h1>
+    <p class="motto">Local deniable vault. Every phrase opens its own vault.</p>
+    <p class="lede">The phrase stays on this computer. AES-256-GCM, Argon2id, and HKDF. After install, run <code>ark ui</code> and open http://127.0.0.1:8850.</p>
+    <a class="btn block primary" id="downloadBtn" href="/download?asset=${DEFAULT_ASSET}">Download</a>
+    <p class="asset-note" id="downloadNote">${n} downloads · ${DEFAULT_ASSET} · counted on this Worker for every branch and fork</p>
+    <ul class="features">
+      <li>One phrase opens one vault on this computer</li>
+      <li>An empty vault looks the same as a wrong phrase</li>
+      <li>A file is checked, then encrypted, before it is stored</li>
+    </ul>
+    <p class="honesty">A forgotten phrase cannot be recovered. This page counts downloads and never stores a phrase or a vault.</p>
+  </header>
+  <main>
+    <section class="card" id="counts" aria-label="Counts">
+      <div class="nums">
+        <p class="count">${v}<span>Views</span></p>
+        <p class="count">${n}<span>Downloads</span></p>
+      </div>
+      <p class="kid">One-click install copies a Terminal command. When it finishes, run <code>ark ui</code>.</p>
       <button type="button" class="btn install" id="install-btn">One-click install</button>
-    </div>
-    <pre id="install-cmd">curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash</pre>
-    <p class="kid">Then run: <code>ark ui</code> and open http://127.0.0.1:8850 (this computer only).</p>
-    <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). No 302 to GitHub. Forks using this same link are counted automatically. ${DEFAULT_ASSET} — ${n} counted.</p>
-    <p class="iso">Isolated counter: Worker <code>ark-download-tracker</code>, project <code>ark</code>, KV <code>ARK_DOWNLOADS</code>. Not mixed with any other product. /v1, /mcp, and /v1/mesh/* do not increment downloads.</p>
-    <p class="meta">Paper: <a href="https://doi.org/10.5281/zenodo.21435810">doi:10.5281/zenodo.21435810</a> · <a href="https://zenodo.org/records/21435810">Zenodo</a> · Apache-2.0 · Eliab, Aziel</p>
-    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/count">/count</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/mcp">MCP</a> · <a href="/v1/mesh">/v1/mesh</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
+      <pre id="install-cmd">curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash</pre>
+    </section>
+    <aside id="meshStrip" aria-label="Live Nodes">
+      <span class="live"><b id="meshLiveCount">0</b> Live Nodes</span>
+      <span id="meshLine">Suite mesh: off (default). QNM-BUILD-1.0. QNS-CD-1.0. Not an anonymity network.</span>
+      <span class="rollup">live <b id="qnmLive">0</b> · locked <b id="qnmLocked">0</b> · isolated <b id="qnmIsolated">0</b></span>
+      <span>No Node Gate · No auto-heal · Aziel Eliab only</span>
+      <span>
+        <input id="meshBearer" type="text" placeholder="bearer (required to enable)" autocomplete="off" spellcheck="false" aria-label="Mesh bearer">
+        <button type="button" id="meshEnable">Enable</button>
+        <button type="button" id="meshDisable">Disable</button>
+        <button type="button" id="meshJoin">Join</button>
+        <button type="button" id="meshLeave">Leave</button>
+      </span>
+      <p id="meshProducts">Catalog MCP mesh_* · FragGate slug=mesh · /v1/mesh/* PROXY · QNS-CD-1.0 cite · not AnonBroadcast · not AZMail ring · not a Node Gate · no public qnsd proxy</p>
+    </aside>
+    <section class="card" id="breakdown">
+      <h2>Per repo / branch / fork</h2>
+      <ul>${breakdown}</ul>
+      <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). Forks using this same link are counted automatically. ${DEFAULT_ASSET} — ${n} counted.</p>
+      <p class="iso">Isolated counter: Worker <code>ark-download-tracker</code>, project <code>ark</code>, KV <code>ARK_DOWNLOADS</code>. Not mixed with any other product. /v1, /mcp, and /v1/mesh/* do not increment downloads.</p>
+    </section>
+    <section class="cite" id="cite">
+      <h2>How to cite</h2>
+      <p>Aziel Eliab. The ARK. https://github.com/AzielEliab/ark. https://ark-download-tracker.vibelock.workers.dev. https://doi.org/10.5281/zenodo.21435810.</p>
+    </section>
+  </main>
+  <footer class="quiet">
+    <p>Apache-2.0 · Aziel Eliab · The ARK</p>
+    <p><a href="${GITHUB_REPO}">GitHub</a> · <a href="https://aziel-runtime.vibelock.workers.dev/">Catalog</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/mcp">MCP</a> · <a href="/v1/mesh">Mesh</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="/stats">Stats</a> · <a href="/count">Count</a> · <a href="/cite.json">Cite</a> · <a href="${DOI}">DOI</a> · <a href="${ZENODO}">Zenodo</a> · <a href="${GITHUB_LATEST}">Releases</a></p>
+  </footer>
+
     <script>
       (function () {
         var cmd = "curl -fsSL https://ark-download-tracker.vibelock.workers.dev/install.sh | bash";
@@ -565,15 +745,6 @@ async function indexHtml(env) {
         document.addEventListener("visibilitychange", function () { if (!document.hidden) refreshMesh(); });
       })();
     </script>
-    <h2>Per repo / branch / fork</h2>
-    <ul>${breakdown}</ul>
-  </div>
-
-<section class="cite" id="cite">
-  <h2>How to cite</h2>
-  <p>Aziel Eliab. The ARK. https://github.com/AzielEliab/ark. https://ark-download-tracker.vibelock.workers.dev. https://doi.org/10.5281/zenodo.21435810.</p>
-  <p><a href="https://aziel-runtime.vibelock.workers.dev/">Catalog</a> · <a href="https://github.com/AzielEliab/ark">GitHub</a> · <a href="https://ark-download-tracker.vibelock.workers.dev/download">Download</a> · <a href="https://ark-download-tracker.vibelock.workers.dev/cite.json">cite.json</a></p>
-</section>
 <!-- /gitbaby-seo -->
 </body>
 </html>`;
