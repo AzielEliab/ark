@@ -1,8 +1,8 @@
 """Local ARK UI. Bind 127.0.0.1:8850 only.
 
-Phrase field, level, unlock, list, upload encrypt (multipart), download
-decrypt, sweep, lock. Dark matte/gold. Banner not-a-kernel.
-Self-contained CSS, no CDN, no telemetry. Never logs phrases.
+Phrase, unlock, list, upload, download, sweep, lock.
+Human HTML by default. JSON when Accept starts with application/json,
+and on /api/*. Self-contained CSS, no CDN, no telemetry. Never logs phrases.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from importlib.resources import files
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from ark.config import AUTOLOCK_SECONDS, LIMITATION, SECURITY_LEVELS
+from ark.config import APP_VERSION, AUTOLOCK_SECONDS, LIMITATION
 from ark.engine.cleanup import close_session
 from ark.security.errors import uniform_failure_message
 from ark.security.virus import VirusFlagged, findings_as_dicts, scan_bytes
@@ -116,11 +116,28 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or "0")
         return self.rfile.read(length) if length else b""
 
+    def _wants_json(self) -> bool:
+        accept = (self.headers.get("Accept") or "").strip().lower()
+        return accept.startswith("application/json")
+
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
         path = parsed.path
         self.state.autolock()
         if path in {"/", "/index.html"}:
+            if self._wants_json():
+                sess = self.state.session
+                self._json(
+                    200,
+                    {
+                        "product": "ark",
+                        "version": APP_VERSION,
+                        "author": "Aziel Eliab",
+                        "unlocked": sess is not None and not sess._destroyed,
+                        "level": None if sess is None else sess.security_level,
+                    },
+                )
+                return
             self._send(200, _web_bytes("index.html"), MIME[".html"])
             return
         if path == "/style.css":
@@ -313,13 +330,20 @@ def make_server(host: str = "127.0.0.1", port: int = 8850, data_dir: str | None 
     return ThreadingHTTPServer((host, port), Bound)
 
 
-def serve(host: str = "127.0.0.1", port: int = 8850, data_dir: str | None = None) -> None:
+def serve(
+    host: str = "127.0.0.1",
+    port: int = 8850,
+    data_dir: str | None = None,
+    *,
+    as_json: bool = False,
+) -> None:
     httpd = make_server(host, port, data_dir=data_dir)
     bound_host, bound_port = httpd.server_address[:2]
-    print(
-        f"ARK UI http://{bound_host}:{bound_port} "
-        "(loopback only; not a kernel; local deniable vault; no telemetry)"
-    )
+    url = f"http://{bound_host}:{bound_port}/"
+    if as_json:
+        print(json.dumps({"url": url, "loopback": True}))
+    else:
+        print(f"Open {url}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

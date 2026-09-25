@@ -38,13 +38,25 @@ def run() -> dict[str, Any]:
 
 
 def format_report(payload: dict[str, Any]) -> str:
-    lines = [f"ARK doctor {payload.get('version')}"]
-    for c in payload.get("checks") or []:
-        mark = "ok" if c.get("ok") else "FAIL"
-        detail = f"  {c.get('detail')}" if c.get("detail") else ""
-        lines.append(f"{mark}  {c.get('id')}{detail}")
-    lines.append("doctor: healthy" if payload.get("ok") else "doctor: FAILED")
-    lines.append(str(payload.get("limitation") or ""))
+    labels = {
+        "version": "version",
+        "loopback": "loopback",
+        "sweep_clean_text": "intake check",
+        "not_kernel": "scope note",
+        "telemetry": "telemetry",
+    }
+    lines = [f"ark doctor  {payload.get('version')}", ""]
+    for check in payload.get("checks") or []:
+        mark = "pass" if check.get("ok") else "fail"
+        label = labels.get(str(check.get("id")), str(check.get("id")))
+        detail = "" if check.get("id") == "sweep_clean_text" and check.get("ok") else (check.get("detail") or "")
+        extra = f"  {detail}" if detail else ""
+        lines.append(f"{mark}  {label}{extra}")
+    lines.append("")
+    if payload.get("ok"):
+        lines.append("Ready.")
+    else:
+        lines.append("Not ready. Run: ark doctor --json")
     return "\n".join(lines)
 
 

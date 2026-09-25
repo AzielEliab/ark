@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ark"
 version = "0.1.0"
-description = "The ARK (Aziel Rotating Kernel): local deniable vault. Not a kernel. Every phrase is a login."
+description = "The ARK: a local vault. The phrase you choose is the login."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "Aziel Eliab"}]

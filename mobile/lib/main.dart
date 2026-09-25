@@ -21,7 +21,9 @@ class ArkApp extends StatelessWidget {
     return MaterialApp(
       title: 'The ARK',
       debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
+      theme: buildLightTheme(),
+      darkTheme: buildAppTheme(),
+      themeMode: ThemeMode.system,
       home: const ArkHome(),
     );
   }
@@ -66,50 +68,32 @@ class _ArkHomeState extends State<ArkHome> {
         padding: const EdgeInsets.all(20),
         children: [
           Text(
-            'Aziel Rotating Kernel. Local deniable vault. Not a kernel.',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: kGold),
+            'A phrase field for the desktop vault.',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Text(limitation, style: Theme.of(context).textTheme.bodyMedium),
-            ),
+          const SizedBox(height: 8),
+          Text(
+            'This phone screen does not encrypt files. The desktop ark command does.',
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 18),
           TextField(
             controller: _phrase,
             obscureText: true,
             decoration: const InputDecoration(
-              labelText: 'Phrase (this IS the login)',
-              helperText: 'Never stored in the cloud. Dome UI only.',
+              labelText: 'Phrase',
+              helperText: 'Cleared when you continue. Not sent anywhere.',
             ),
           ),
-          const SizedBox(height: 12),
-          Text('Security level (behavior, not crypto)', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
-          SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'normal', label: Text('normal')),
-              ButtonSegment(value: 'strong', label: Text('strong')),
-              ButtonSegment(value: 'paranoid', label: Text('paranoid')),
-            ],
-            selected: {_level},
-            onSelectionChanged: (s) => setState(() => _level = s.first),
-          ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              FilledButton(onPressed: _unlock, child: const Text('Unlock')),
-              const SizedBox(width: 12),
-              OutlinedButton(onPressed: _lock, child: const Text('Lock')),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Text(_unlocked ? 'Vault list (placeholder — engine is desktop)' : 'Locked',
-              style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 8),
-          if (_unlocked)
+          FilledButton(onPressed: _unlock, child: const Text('Continue')),
+          const SizedBox(height: 12),
+          if (_unlocked) ...[
+            Text(
+              'Desktop ark stores files. This list is only a placeholder.',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
             ..._placeholder.map(
               (row) => Card(
                 child: ListTile(
@@ -118,11 +102,44 @@ class _ArkHomeState extends State<ArkHome> {
                 ),
               ),
             ),
-          const SizedBox(height: 24),
-          Text(
-            'Counted desktop download: https://ark-download-tracker.vibelock.workers.dev/\n'
-            'Live Nodes: GET /v1/mesh PROXY (default OFF). QNM live|locked|isolated. No Node Gate.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: kGoldDim),
+            const SizedBox(height: 8),
+            OutlinedButton(onPressed: _lock, child: const Text('Lock')),
+          ],
+          const SizedBox(height: 16),
+          ExpansionTile(
+            title: const Text('Advanced'),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('When a desktop vault locks itself', style: Theme.of(context).textTheme.labelLarge),
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'normal', label: Text('normal')),
+                  ButtonSegment(value: 'strong', label: Text('strong')),
+                  ButtonSegment(value: 'paranoid', label: Text('paranoid')),
+                ],
+                selected: {_level},
+                onSelectionChanged: (s) => setState(() => _level = s.first),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+          ExpansionTile(
+            title: const Text('About'),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Text(limitation, style: Theme.of(context).textTheme.bodyMedium),
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Text(
+                  'Counted desktop download: https://ark-download-tracker.vibelock.workers.dev/',
+                ),
+              ),
+            ],
           ),
         ],
       ),

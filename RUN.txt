@@ -1,0 +1,6 @@
+The ARK — local vault
+Author: Aziel Eliab
+
+1. python -m venv .venv && source .venv/bin/activate && pip install -e .
+2. ark ui
+3. Open http://127.0.0.1:8850/ and enter a phrase.

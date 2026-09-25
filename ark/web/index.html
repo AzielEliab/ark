@@ -3,148 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The ARK — Aziel Rotating Kernel</title>
+  <title>The ARK</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header>
-    <div class="tag">ARK · v0.1.0 · loopback · local vault</div>
-    <h1>The ARK</h1>
-    <p class="motto">Aziel Rotating Kernel. Local deniable vault. Not a kernel.</p>
-    <p class="lede">
-      Every phrase is a login. One phrase → one vault. Empty vault indistinguishable
-      from a wrong phrase. AES-256-GCM, Argon2id, HKDF. Mode E intake filter before encrypt.
-    </p>
+  <header class="bar">
+    <div class="brand">
+      <p class="mark">The ARK</p>
+      <p class="by">Aziel Eliab</p>
+    </div>
+    <p id="status" class="status idle" role="status">Locked</p>
   </header>
 
-  <aside class="banner limit" role="note">
-    Not a kernel, not a bootable OS, not a worm, not kernel isolation.
-    “Rotating Kernel” means the rotating crypto/engine, not a Linux/Windows kernel.
-    Forgotten phrase = permanent loss. Weak phrase = isolated vault compromise.
-    Does not defeat live OS compromise while unlocked. Civilian software.
-    HSM, kernel isolation, and classified OS are out of scope.
-    Virus sweep is a local intake filter on files YOU put in YOUR vault,
-    not a network AV product and not an exploit.
-    A wrong phrase silently opens a different empty vault (deniability).
-    Loopback UI. No telemetry.
-  </aside>
+  <main>
+    <section id="gate">
+      <h1>Keep a file on this computer</h1>
+      <p class="lede">Type a phrase to open your vault. The phrase stays on this computer.</p>
+      <form id="unlock-form" autocomplete="off">
+        <label for="phrase">Phrase</label>
+        <input id="phrase" name="phrase" type="password" autocomplete="off" spellcheck="false" autofocus>
+        <button type="submit" id="unlock" class="primary">Open vault</button>
+      </form>
+    </section>
 
-  <form id="unlock-form" autocomplete="off">
-    <fieldset>
-      <legend>Unlock</legend>
-      <label for="phrase">
-        <span class="kicker">Phrase — this IS the login</span>
-        Never stored in the cloud. Never printed.
-      </label>
-      <input id="phrase" name="phrase" type="password" autocomplete="off" spellcheck="false">
+    <section id="files" hidden>
+      <h1>Your files</h1>
+      <p class="lede">Add a file to store it in this vault.</p>
+      <p id="empty" class="empty">No files in this vault yet.</p>
+      <ul id="entries" class="entries"></ul>
+      <div class="actions">
+        <button type="button" id="add-file" class="primary">Add a file</button>
+        <input id="upload" type="file" hidden>
+        <button type="button" id="lock" class="ghost">Lock</button>
+      </div>
+    </section>
 
-      <label for="level">
-        <span class="kicker">Security level</span>
-        Behavior (auto-lock + decoys), not cryptography.
-      </label>
-      <select id="level" name="level">
-        <option value="normal" selected>normal — 15 min auto-lock</option>
-        <option value="strong">strong — 5 min auto-lock</option>
-        <option value="paranoid">paranoid — 60 s auto-lock</option>
-      </select>
-    </fieldset>
-    <div class="actions">
-      <button type="submit" id="unlock">Unlock</button>
-      <button type="button" id="lock" class="ghost">Lock</button>
-    </div>
-  </form>
+    <details class="fold" id="advanced">
+      <summary>Advanced</summary>
+      <div class="fold-body">
+        <label for="level">When this vault locks itself</label>
+        <select id="level" name="level">
+          <option value="normal" selected>Normal — after 15 minutes</option>
+          <option value="strong">Strong — after 5 minutes</option>
+          <option value="paranoid">Paranoid — after 1 minute</option>
+        </select>
+        <p class="hint">This only changes the lock timer. Encryption stays the same.</p>
 
-  <section class="vault">
-    <h2>Vault</h2>
-    <p id="status" class="band idle">Locked. Phrase opens or creates a vault.</p>
-    <ul id="entries" class="types"></ul>
-    <div class="actions">
-      <label class="file-btn">
-        Upload &amp; encrypt
-        <input id="upload" type="file">
-      </label>
-      <label class="file-btn ghost">
-        Sweep file
-        <input id="sweep" type="file">
-      </label>
-    </div>
-    <p id="sweep-out" class="gate-line"></p>
-  </section>
+        <button type="button" id="check-file" class="ghost">Check a file</button>
+        <input id="sweep" type="file" hidden>
+        <p id="sweep-out" class="hint" role="status"></p>
+        <p class="hint">The check stays on this computer. The file is not stored.</p>
 
-  
-<section class="card" id="aziel-json-io">
-  <h2>Import / Export JSON</h2>
-  <p class="help">Tap Import JSON file to pick a .json. Export JSON saves the current session locally. Nothing is uploaded.</p>
-  <input id="aziel-import-json" type="file" accept="application/json,.json">
-  <p>
-    <button type="button" id="aziel-import-json-btn">Import JSON file</button>
-    <button type="button" id="aziel-export-json-btn">Export JSON</button>
-  </p>
-  <p class="help" id="aziel-json-status"></p>
-</section>
+        <h2>Page choices</h2>
+        <p class="hint">Save or restore the choices on this page. The phrase is not included.</p>
+        <input id="aziel-import-json" type="file" accept="application/json,.json" hidden>
+        <div class="actions">
+          <button type="button" id="aziel-import-json-btn" class="ghost">Import JSON file</button>
+          <button type="button" id="aziel-export-json-btn" class="ghost">Export JSON</button>
+        </div>
+        <p class="hint" id="aziel-json-status" role="status"></p>
+        <p class="hint">In a terminal, <span class="cmd">ark doctor</span> checks this copy.</p>
+      </div>
+    </details>
 
-<footer>
-    <p>Apache-2.0 · Aziel Eliab · 2026 · Bound to 127.0.0.1:8850 · Forks welcome and always allowed.</p>
-    <p class="foot-note">Standalone from AZ-OS, GodLock, ForgeReceipts. Not a kernel.</p>
-  </footer>
+    <details class="fold">
+      <summary>About</summary>
+      <div class="fold-body">
+        <p>The ARK is a local vault by Aziel Eliab. Files stay in a folder on this computer. This page does not send them anywhere.</p>
+        <p>The phrase is the login. A different phrase opens a different vault. A forgotten phrase leaves those files unreadable.</p>
+        <p>Not a kernel, not a bootable OS. “Rotating Kernel” means the rotating crypto engine. The intake check looks at files you choose to store.</p>
+        <p>Version 0.1.0. Apache-2.0. Bound to 127.0.0.1. Forks are welcome.</p>
+      </div>
+    </details>
+  </main>
+
   <script src="/app.js"></script>
-
-<script>
-(function(){
-  var file = document.getElementById("aziel-import-json");
-  var imp = document.getElementById("aziel-import-json-btn");
-  var exp = document.getElementById("aziel-export-json-btn");
-  var status = document.getElementById("aziel-json-status");
-  if (!file || !imp || !exp) return;
-  function say(m){ if (status) status.textContent = m; }
-  function collect(){
-    var data = { product: document.title || "", exported_at: new Date().toISOString(), author: "Aziel Eliab" };
-    document.querySelectorAll("input, select, textarea").forEach(function(el){
-      if (!el.id || el.type === "file" || el.type === "password") return;
-      data[el.id] = el.type === "checkbox" ? el.checked : el.value;
-    });
-    if (window.__azielLastJson && typeof window.__azielLastJson === "object") {
-      data.last = window.__azielLastJson;
-    }
-    return data;
-  }
-  function apply(obj){
-    if (!obj || typeof obj !== "object") return;
-    window.__azielLastJson = obj;
-    Object.keys(obj).forEach(function(k){
-      if (k === "last" || k === "product" || k === "exported_at" || k === "author") return;
-      var el = document.getElementById(k);
-      if (!el || el.type === "file" || el.type === "password") return;
-      if (el.type === "checkbox") el.checked = !!obj[k];
-      else if ("value" in el) el.value = obj[k];
-    });
-    var ta = document.querySelector("textarea");
-    if (ta && obj && !obj[ta.id] && typeof obj === "object") {
-      try { if (!ta.value) ta.value = JSON.stringify(obj, null, 2); } catch (e) {}
-    }
-  }
-  imp.addEventListener("click", function(){ file.click(); });
-  file.addEventListener("change", function(){
-    var f = file.files && file.files[0];
-    if (!f) return;
-    var r = new FileReader();
-    r.onload = function(){
-      try { apply(JSON.parse(String(r.result || "{}"))); say("Imported " + f.name); }
-      catch (e) { say("Invalid JSON"); }
-    };
-    r.readAsText(f);
-  });
-  exp.addEventListener("click", function(){
-    var blob = new Blob([JSON.stringify(collect(), null, 2)], {type: "application/json"});
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "session.json";
-    a.click();
-    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 800);
-    say("Exported JSON");
-  });
-})();
-</script>
-
 </body>
 </html>
