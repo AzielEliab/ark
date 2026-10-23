@@ -1,3 +1,4 @@
+import { crawlFileResponse } from "./crawl-files.js";
 import * as engine from "./engine.js";
 import { classifyRequest } from "./classify.js";
 import {
@@ -746,6 +747,9 @@ export async function handleRuntime(request, url, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // Crawl files (/llms.txt). Read-only; never counts a download.
+    const crawlFile = crawlFileResponse(url, request);
+    if (crawlFile) return crawlFile;
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders() });
